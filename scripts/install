@@ -100,7 +100,7 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 #=================================================
 
 # Create postgresql database
-db_name="peertube_${app}"
+db_name="$app"
 db_pwd=$(ynh_string_random 30)
 ynh_app_setting_set "$app" psql_db "$db_name"
 ynh_app_setting_set "$app" psqlpwd "$db_pwd"

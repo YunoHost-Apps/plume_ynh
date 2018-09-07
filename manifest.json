@@ -1,6 +1,6 @@
 {
-    "name": "YunoHost example app",
-    "id": "ynhexample",
+    "name": "plume bloggin app for yunohost",
+    "id": "plume",
     "packaging_format": 1,
     "description": {
         "en": "Package for Plume application."
