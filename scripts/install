@@ -186,8 +186,6 @@ ynh_add_systemd_config
 
 # Set right permissions for curl install
 chown -R $app: $final_path
-# Actually start Plume
-( cd $final_path && cargo run )
 
 #=================================================
 # SETUP LOGROTATE
