@@ -49,6 +49,8 @@ fi
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
 
+( cd $final_path &&  cargo uninstall diesel_cli )
+
 sudo /usr/local/lib/rustlib/uninstall.sh
 
 #=================================================
