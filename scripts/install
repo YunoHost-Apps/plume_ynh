@@ -133,7 +133,7 @@ ynh_system_user_create $app $final_path
 ( cd $final_path && curl -sf -L https://static.rust-lang.org/rustup.sh | sh )
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
 ( cd $final_path && cargo build )
-( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:$port/plume )
+( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:5432/plume )
 
 #=================================================
 # NGINX CONFIGURATION
@@ -171,7 +171,7 @@ ynh_add_systemd_config
 
 # Optional, only do it if the database URL is not
 # postgres://plume:plume@localhost/plume
-export DB_URL=postgres://$db_name:$db_pwd@localhost:$port/plume
+export DB_URL=postgres://$db_name:$db_pwd@localhost:5432/plume
 
 # Create the media directory, where uploads will be stored
 (cd $final_path && mkdir media )
