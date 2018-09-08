@@ -1,13 +1,14 @@
 [Unit]
-Description=Small description of the service
+Description=__APP__ service
 After=network.target
 
 [Service]
 Type=simple
 User=__APP__
-Group=__APP__
 WorkingDirectory=__FINALPATH__/
-ExecStart=__FINALPATH__/script >> /var/log/__APP__/__APP__.log 2>&1
+ExecStart=__FINALPATH__/ cargo run >> /var/log/__APP__/__APP__.log 2>&1
+TimeoutSec=30
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

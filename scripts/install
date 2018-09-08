@@ -108,8 +108,6 @@ ynh_psql_test_if_first_run
 ynh_psql_create_user "$app" "$db_pwd"
 ynh_psql_execute_as_root \
 "CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
-ynh_psql_execute_as_root "\connect $db_name 
-CREATE EXTENSION IF NOT EXISTS unaccent;CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -133,6 +131,7 @@ ynh_system_user_create $app $final_path
 ( cd $final_path && curl -sf -L https://static.rust-lang.org/rustup.sh | sh )
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
 ( cd $final_path && cargo build )
+( cd $final_path && cargo install diesel_cli --no-default-features --features postgres --version '=1.2.0' )
 ( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:5432/plume )
 
 #=================================================
@@ -171,7 +170,7 @@ ynh_add_systemd_config
 
 # Optional, only do it if the database URL is not
 # postgres://plume:plume@localhost/plume
-export DB_URL=postgres://$db_name:$db_pwd@localhost:5432/plume
+( cd $final_path && export DB_URL=postgres://$db_name:$db_pwd@localhost:5432/plume )
 
 # Create the media directory, where uploads will be stored
 (cd $final_path && mkdir media )
