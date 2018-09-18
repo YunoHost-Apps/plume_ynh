@@ -5,7 +5,7 @@
     "description": {
         "en": "Package for Plume application."
     },
-    "version": "1.0~ynh1",
+    "version": "0.2.0",
     "url": "https://baptiste.gelez.xyz/",
     "license": "free",
     "maintainer": {
@@ -30,16 +30,6 @@
                 },
                 "example": "example.com"
             },
-            {
-                "name": "path",
-                "type": "path",
-                "ask": {
-                    "en": "Choose a path for Plume"
-                },
-                "example": "/example",
-                "default": "/example"
-            },
-          
             {
                 "name": "is_public",
                 "type": "boolean",

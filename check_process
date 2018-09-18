@@ -6,7 +6,6 @@
 ;; Test complet
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
-		path="/path"	(PATH)
 		is_public=1	(PUBLIC|public=1|private=0)
 	; Checks
 		pkg_linter=1

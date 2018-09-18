@@ -25,8 +25,9 @@ ynh_abort_if_errors
 #=================================================
 
 domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
+path_url="/"
 is_public=$YNH_APP_ARG_IS_PUBLIC
+random_key=$(ynh_string_random 32)
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
 ### The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -64,6 +65,7 @@ ynh_webpath_register $app $domain $path_url
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app random_key $random_key
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -93,7 +95,7 @@ ynh_app_setting_set $app port $port
 ###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
-ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config
 
 #=================================================
 # DATABASE SETUP
@@ -121,6 +123,9 @@ ynh_app_setting_set $app final_path $final_path
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 
+# Create the media directory, where uploads will be stored
+(cd $final_path && mkdir media )
+
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
@@ -132,7 +137,7 @@ ynh_system_user_create $app $final_path
 export PATH="$PATH:/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
 ( cd $final_path && cargo build )
 ( cd $final_path && cargo install diesel_cli --no-default-features --features postgres --version '=1.2.0' )
-( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:5432/plume )
+( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:5432/$app )
 
 #=================================================
 # NGINX CONFIGURATION
@@ -143,10 +148,20 @@ export PATH="$PATH:/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
+# setup application config
+sudo  cp ../conf/.env $final_path/.env
+#=================================================
+# MODIFY A CONFIG FILE
+#=================================================
+ynh_replace_string "__DBNAME__"     "$db_name"    "$final_path/.env"
+ynh_replace_string "__PSQLPWD__"    "$db_pwd"     "$final_path/.env"
+ynh_replace_string "__DOMAIN__"     "$domain"     "$final_path/.env"
+ynh_replace_string "__RANDOM_KEY__" "$random_key" "$final_path/.env"
+ynh_replace_string "__PORT__"       "$port"       "$final_path/.env"
+ynh_replace_string "__DB_USER__"    "$app"        "$final_path/.env"
 
-# Optional, only do it if the database URL is not
-# postgres://plume:plume@localhost/plume
-( cd $final_path && export DB_URL=postgres://$db_name:$db_pwd@localhost:5432/plume )
+# Set right permissions 
+chown -R $app: $final_path
 
 #=================================================
 # SETUP SYSTEMD
@@ -166,21 +181,6 @@ ynh_add_nginx_config
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
-
-# Create the media directory, where uploads will be stored
-(cd $final_path && mkdir media )
-
-#=================================================
-# SETUP APPLICATION WITH CURL
-#=================================================
-
-### Use these lines only if the app installation needs to be finalized through
-### web forms. We generally don't want to ask the final user,
-### so we're going to use curl to automatically fill the fields and submit the
-### forms.
-
-# Set right permissions for curl install
-chown -R $app: $final_path
 
 #=================================================
 # SETUP LOGROTATE
