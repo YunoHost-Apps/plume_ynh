@@ -129,7 +129,7 @@ ynh_setup_source "$final_path"
 ynh_system_user_create $app $final_path
 
 ( cd $final_path && curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-07-17 )
-export PATH="/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
+export PATH="$PATH:/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
 ( cd $final_path && cargo build )
 ( cd $final_path && cargo install diesel_cli --no-default-features --features postgres --version '=1.2.0' )
 ( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:5432/plume )
