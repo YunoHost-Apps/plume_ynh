@@ -27,7 +27,6 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 is_public=$YNH_APP_ARG_IS_PUBLIC
-random_key=$(ynh_string_random 32)
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
 ### The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -65,7 +64,6 @@ ynh_webpath_register $app $domain $path_url
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app is_public $is_public
-ynh_app_setting_set $app random_key $random_key
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -96,6 +94,10 @@ ynh_app_setting_set $app port $port
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
 ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config
+
+# Random key genration and store it
+random_key=$(openssl rand -base64 32)
+ynh_app_setting_set $app random_key $random_key
 
 #=================================================
 # DATABASE SETUP
