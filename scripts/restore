@@ -8,6 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source psql.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -29,7 +30,9 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
-db_name=$(ynh_app_setting_get $app db_name)
+port=$(ynh_app_setting_get "$app" port)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
@@ -39,6 +42,20 @@ ynh_webpath_available $domain $path_url \
 	|| ynh_die "Path not available: ${domain}${path_url}"
 test ! -d $final_path \
 	|| ynh_die "There is already a directory: $final_path "
+	
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
+### Those deb packages will be installed as dependencies of this package.
+### If you're not using this helper:
+###		- Remove the section "REMOVE DEPENDENCIES" in the remove script
+###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
+###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
+
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev
 
 #=================================================
 # STANDARD RESTORATION STEPS
@@ -53,14 +70,20 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 
 ynh_restore_file "$final_path"
+( cd $final_path && curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-05-31 )
+
+# open port
+yunohost firewall allow --no-upnp TCP $port 2>&1
 
 #=================================================
-# RESTORE THE MYSQL DATABASE
+# RESTORE THE PostgreSQL DATABASE
 #=================================================
 
-db_pwd=$(ynh_app_setting_get $app mysqlpwd)
-ynh_mysql_setup_db $db_name $db_name $db_pwd
-ynh_mysql_connect_as $db_name $db_pwd $db_name < ./db.sql
+ynh_psql_test_if_first_run
+ynh_psql_create_user "$app" "$db_pwd"
+ynh_psql_execute_as_root \
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
+ynh_psql_execute_file_as_root ./db.sql "$db_name"
 
 #=================================================
 # RECREATE THE DEDICATED USER
@@ -74,29 +97,7 @@ ynh_system_user_create $app
 #=================================================
 
 # Restore permissions on app files
-chown -R root: $final_path
-
-#=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
-#=================================================
-
-ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
-ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
-
-#=================================================
-# SPECIFIC RESTORATION
-#=================================================
-# REINSTALL DEPENDENCIES
-#=================================================
-
-# Define and install dependencies
-ynh_install_app_dependencies deb1 deb2
-
-#=================================================
-# ADVERTISE SERVICE IN ADMIN PANEL
-#=================================================
-
-yunohost service add $app --log "/var/log/$app/APP.log"
+chown -R $app: $final_path
 
 #=================================================
 # RESTORE SYSTEMD
@@ -104,12 +105,6 @@ yunohost service add $app --log "/var/log/$app/APP.log"
 
 ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable $app.service
-
-#=================================================
-# RESTORE THE CRON FILE
-#=================================================
-
-ynh_restore_file "/etc/cron.d/$app"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
@@ -120,8 +115,7 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PHP-FPM
+# RELOAD NGINX
 #=================================================
 
-systemctl reload php5-fpm
 systemctl reload nginx
