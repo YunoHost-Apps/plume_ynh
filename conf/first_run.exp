@@ -1,5 +1,4 @@
 #!/usr/bin/expect
-set timeout 10
 
 set final_path [lindex $argv 0]   
 set domain     [lindex $argv 1]
@@ -10,6 +9,8 @@ set port       [lindex $argv 5]
 
 
 cd $final_path
+export PATH="$PATH:/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
+
 spawn cargo run
 
 expect "First let's check that you have all the required dependencies. Press Enter to start."
