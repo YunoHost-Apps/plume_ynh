@@ -178,6 +178,7 @@ ynh_replace_special_string "__ADMIN_PASS__" $admin_pass "$final_path/first_run.e
 su - $app -s /bin/bash -c "$final_path/first_run.exp $final_path $domain $blog_name $admin $email $port"
 ynh_secure_remove "$final_path/first_launch.exp"
 
+
 #=================================================
 # SETUP SYSTEMD
 #=================================================
