@@ -160,24 +160,23 @@ ynh_replace_string "__DB_USER__"    "$app"        "$final_path/.env"
 # Set right permissions 
 chown -R $app: $final_path
 
-# Try Here string to input
+# spawn test
 pass="test"
-name="test"
+blog_name="test"
+admin="test"
 email="test@domain.tld"
 admin_pass="test123"
 
-( cd $final_path && cargo run << EOF
+# Copy first run script
+cp ../conf/first_run.exp $final_path
+chmod +x $final_path/first_run.exp
 
-$pass
-2
-$domain
-$username
-$email
-$admin_pass
-$port
-127.0.0.1
-EOF
-)
+
+# We escape all char witch needed.
+ynh_replace_special_string "__PASSWORD__" $pass "$final_path/first_run.exp"
+ynh_replace_special_string "__ADMIN_PASS__" $admin_pass "$final_path/first_run.exp"
+su - $app -s /bin/bash -c "$final_path/first_run.exp $final_path $domain $blog_name $admin $email $port"
+ynh_secure_remove "$final_path/first_launch.exp"
 
 #=================================================
 # SETUP SYSTEMD
