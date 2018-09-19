@@ -160,57 +160,24 @@ ynh_replace_string "__DB_USER__"    "$app"        "$final_path/.env"
 # Set right permissions 
 chown -R $app: $final_path
 
+# Try Here string to input
 pass="test"
 name="test"
 email="test@domain.tld"
 admin_pass="test123"
 
-( spawn cd $final_path && cargo run
+( cd $final_path && cargo run << EOF
 
-expect "First let's check that you have all the required dependencies. Press Enter to start."
-
-send "\r"
-
-expect "Password:"
-
-send "$pass\r"
-
-expect "Do you prefer a simple setup, or to customize everything?
-
-  1 - Simple setup
-  2 - Complete setup"
-  
-send "2\r"
-
-expect "What is your instance domain?"
-
-send "$domain\r"
-
-expect "What is your instance name?"
-
-send "$name\r"
-
-expect "What is your username? (default: admin)"
-
-send "$username\r"
-
-expect "What is your email?"
-
-send "$email\r"
-
-expect "What is your password?"
-
-send "$admin_pass\r"
-
-expect "On which port should Plume listen? (default: 7878)"
-
-send "$port\r"
-
-expect "On which address should Plume listen? (default: 0.0.0.0)"
-
-send "127.0.0.1\r"
-
-expect eof )
+$pass
+2
+$domain
+$username
+$email
+$admin_pass
+$port
+127.0.0.1
+EOF
+)
 
 #=================================================
 # SETUP SYSTEMD
