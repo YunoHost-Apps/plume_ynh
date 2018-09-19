@@ -9,8 +9,8 @@ set email      [lindex $argv 4]
 set port       [lindex $argv 5]
 
 
-
-spawn cd $final_path && cargo run
+cd $final_path
+spawn cargo run
 
 expect "First let's check that you have all the required dependencies. Press Enter to start."
 
