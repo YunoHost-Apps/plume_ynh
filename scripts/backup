@@ -8,6 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source psql.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -28,7 +29,8 @@ app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
-db_name=$(ynh_app_setting_get $app db_name)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+
 
 #=================================================
 # STANDARD BACKUP STEPS
@@ -45,17 +47,11 @@ ynh_backup "$final_path"
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
-# BACKUP THE PHP-FPM CONFIGURATION
+# BACKUP THE PostgreSQL DATABASE
 #=================================================
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
-ynh_backup "/etc/php5/fpm/conf.d/20-$app.ini"
-
-#=================================================
-# BACKUP THE MYSQL DATABASE
-#=================================================
-
-ynh_mysql_dump_db "$db_name" > db.sql
+ynh_psql_dump_db "$db_name" > db.sql
+ynh_backup "db.sql"
 
 #=================================================
 # SPECIFIC BACKUP
@@ -71,8 +67,3 @@ ynh_backup "/etc/logrotate.d/$app"
 
 ynh_backup "/etc/systemd/system/$app.service"
 
-#=================================================
-# BACKUP A CRON FILE
-#=================================================
-
-ynh_backup "/etc/cron.d/$app"
