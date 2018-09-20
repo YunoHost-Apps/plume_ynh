@@ -160,18 +160,6 @@ ynh_replace_string "__DB_USER__"    "$app"        "$final_path/.env"
 # Set right permissions 
 chown -R $app: $final_path
 
-# spawn test
-pass="test"
-blog_name="test"
-admin="test"
-email="test@domain.tld"
-admin_pass="test123"
-
-# Copy first run script
-cp ../conf/first_run.exp $final_path
-chmod +x $final_path/first_run.exp
-
-
 # We escape all char witch needed.
 ynh_replace_special_string "__PASSWORD__" $pass "$final_path/first_run.exp"
 ynh_replace_special_string "__ADMIN_PASS__" $admin_pass "$final_path/first_run.exp"
@@ -195,7 +183,7 @@ ynh_secure_remove "$final_path/first_launch.exp"
 ###		- And the section "SETUP SYSTEMD" in the upgrade script
 
 # Create a dedicated systemd config
-ynh_add_systemd_config
+# ynh_add_systemd_config
 
 
 #=================================================

@@ -1,0 +1,22 @@
+INSERT INTO instances (
+    public_domain,
+    name,
+    local,
+    long_description,
+    short_description,
+    default_license,
+    open_registrations,
+    short_description_html,
+    long_description_html
+) VALUES (
+    domain_name,
+    instance_name,
+    't',
+    '',
+    '',
+    'CC-0',
+    't',
+    '',
+    ''
+);
+
