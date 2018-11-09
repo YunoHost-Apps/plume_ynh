@@ -70,7 +70,6 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 
 ynh_restore_file "$final_path"
-( cd $final_path && curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-05-31 )
 
 # open port
 yunohost firewall allow --no-upnp TCP $port 2>&1
@@ -90,14 +89,14 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 #=================================================
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create $app
+ynh_system_user_create $app "$final_path"
 
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
 
 # Restore permissions on app files
-chown -R $app: $final_path
+chown -R $app: $final_path 
 
 #=================================================
 # RESTORE SYSTEMD
@@ -115,7 +114,11 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX
+# RELOAD NGINX AND START PLEROMA
 #=================================================
 
 systemctl reload nginx
+systemctl enable "$app"
+systemctl start "$app"
+# App needs time to start
+sleep 10

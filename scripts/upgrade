@@ -20,6 +20,11 @@ path_url=$(ynh_app_setting_get $app path)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 db_name=$(ynh_app_setting_get "$app" psql_db)
+admin=$(ynh_app_setting_get "$app" admin)
+admin_email=$(ynh_app_setting_get "$app" admin_email)
+random_key=$(ynh_app_setting_get "$app" random_key)
+name=$(ynh_app_setting_get "$app" name)
+port=$(ynh_app_setting_get "$app" port)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -37,6 +42,22 @@ fi
 
 
 
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+# Stop Pleroma for upgrade
+systemctl stop "$app"
+
 
 
 #=================================================
@@ -46,8 +67,53 @@ fi
 # Normalize the URL path syntax
 path_url=$(ynh_normalize_url_path $path_url)
 
+# Open this port
+yunohost firewall allow --no-upnp TCP $port 2>&1
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+# Create a system user
+ynh_system_user_create "$app" "$final_path"
 
 
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
+### Those deb packages will be installed as dependencies of this package.
+### If you're not using this helper:
+###		- Remove the section "REMOVE DEPENDENCIES" in the remove script
+###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
+###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
+
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK PLEROMA SOURCE
+#=================================================
+
+( cd $final_path/$app && git pull )
+# Give permisiion to the final_path
+chown -R "$app":"$app" "$final_path"
+( cd $final_path/$app && sudo -u "$app" cargo install --force ) 
+( cd $final_path/$app && sudo -u "$app" cargo install --path plume-cli --force )
+( cd $final_path/$app && sudo -u "$app" diesel migration run )
+
+
+# Recalculate and store the config file checksum into the app settings
+ynh_store_file_checksum "$final_path/$app/.env"
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+# Create a dedicated systemd config
+ynh_add_systemd_config
+
+# Set right permissions
+chown -R "$app":"$app" "$final_path"
 
 #=================================================
 # SETUP SSOWAT
@@ -65,3 +131,7 @@ fi
 #=================================================
 
 systemctl reload nginx
+systemctl enable "$app"
+systemctl restart "$app"
+# App needs time to start
+sleep 10

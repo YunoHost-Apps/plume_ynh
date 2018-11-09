@@ -26,7 +26,13 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
+instance_name=$YNH_APP_ARG_NAME
+admin=$YNH_APP_ARG_ADMIN
+admin_email=$(ynh_user_get_info $admin 'mail')
+admin_pass=$(ynh_string_random 24)
+registration=$YNH_APP_ARG_REGISTRATION
 is_public=$YNH_APP_ARG_IS_PUBLIC
+random_key=$(openssl rand -base64 32)
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
 ### The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -64,6 +70,11 @@ ynh_webpath_register $app $domain $path_url
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app admin $admin
+ynh_app_setting_set $app instance $instance
+ynh_app_setting_set $app admin_email $admin_email
+ynh_app_setting_set $app registration $registraion
+ynh_app_setting_set $app random_key $random_key
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -119,10 +130,23 @@ ynh_psql_execute_as_root \
 
 ynh_app_setting_set $app final_path $final_path
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
+git clone https://github.com/Plume-org/Plume.git "$final_path/$app"
 
 # Create the media directory, where uploads will be stored
 (cd $final_path && mkdir media )
+
+# setup application config
+sudo  cp ../conf/.env $final_path/$app/.env
+#=================================================
+# MODIFY A CONFIG FILE
+#=================================================
+ynh_replace_string "__DBNAME__"     "$db_name"    "$final_path/$app/.env"
+ynh_replace_string "__PSQLPWD__"    "$db_pwd"     "$final_path/$app/.env"
+ynh_replace_string "__DOMAIN__"     "$domain"     "$final_path/$app/.env"
+ynh_replace_string "__PORT__"       "$port"       "$final_path/$app/.env"
+ynh_replace_string "__DB_USER__"    "$app"        "$final_path/$app/.env"
+ynh_replace_string "__KEY__"        "$random_key" "$final_path/$app/.env"
+
 
 #=================================================
 # CREATE DEDICATED USER
@@ -131,11 +155,29 @@ ynh_setup_source "$final_path"
 # Create a system user
 ynh_system_user_create $app $final_path
 
-( cd $final_path && curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-07-17 )
-export PATH="$PATH:/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
-( cd $final_path && cargo build )
-( cd $final_path && cargo install diesel_cli --no-default-features --features postgres --version '=1.2.0' )
-( cd $final_path && diesel migration run --database-url postgres://$db_name:$db_pwd@localhost:5432/$app )
+# Set right permissions 
+chown -R $app: $final_path
+
+
+# App settings
+( cd $final_path && sudo -u "$app" curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-07-17 )
+( cd $final_path && sudo -u "$app" export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" )
+( cd $final_path/$app && sudo -u "$app" export FEATURES=postgres )
+( cd $final_path/$app && sudo -u "$app" cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0' )
+( cd $final_path/$app && sudo -u "$app" diesel migration run )
+( cd $final_path/$app && sudo -u "$app" cargo install --no-default-features --features postgres )
+( cd $final_path/$app && sudo -u "$app" cargo install --no-default-features --features postgres --path plume-cli )
+
+# Add new instance
+if [ $registration -eq 1 ]
+then
+ ( cd $final_path/$app && sudo -u "$app" plm instance new  --domain "$domain" --name '$instance_name' -l 'CC-BY' )
+else
+ ( cd $final_path/$app && sudo -u "$app" plm instance new --private --domain "$domain" --name '$instance_name' -l 'CC-BY' )
+fi
+
+# Add admin user
+( cd $final_path/$app && sudo -u "$app" plm users new --admin -n "$admin" -N "$admin"  --email '$admin_email' --password "$admin_pass" )
 
 #=================================================
 # NGINX CONFIGURATION
@@ -146,38 +188,8 @@ export PATH="$PATH:/root/.cargo/bin:$final_path/.local/bin:/usr/local/sbin"
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
-# setup application config
-sudo  cp ../conf/.env $final_path/.env
-#=================================================
-# MODIFY A CONFIG FILE
-#=================================================
-ynh_replace_string "__DBNAME__"     "$db_name"    "$final_path/.env"
-ynh_replace_string "__PSQLPWD__"    "$db_pwd"     "$final_path/.env"
-ynh_replace_string "__DOMAIN__"     "$domain"     "$final_path/.env"
-ynh_replace_string "__PORT__"       "$port"       "$final_path/.env"
-ynh_replace_string "__DB_USER__"    "$app"        "$final_path/.env"
-
 # Set right permissions 
 chown -R $app: $final_path
-
-#=================================================
-# SETUP SYSTEMD
-#=================================================
-
-### `ynh_systemd_config` is used to configure a systemd script for an app.
-### It can be used for apps that use sysvinit (with adaptation) or systemd.
-### Have a look at the app to be sure this app needs a systemd script.
-### `ynh_systemd_config` will use the file conf/systemd.service
-### If you're not using these lines:
-###		- You can remove those files in conf/.
-###		- Remove the section "BACKUP SYSTEMD" in the backup script
-###		- Remove also the section "STOP AND REMOVE SERVICE" in the remove script
-###		- As well as the section "RESTORE SYSTEMD" in the restore script
-###		- And the section "SETUP SYSTEMD" in the upgrade script
-
-# Create a dedicated systemd config
-# ynh_add_systemd_config
-
 
 #=================================================
 # SETUP LOGROTATE
@@ -206,8 +218,26 @@ then
 	ynh_app_setting_set $app unprotected_uris "/"
 fi
 
+# Create a dedicated systemd config
+ynh_add_systemd_config
+systemctl enable "$app"
+systemctl start "$app"
+sleep 30
 #=================================================
 # RELOAD NGINX
 #=================================================
 
 systemctl reload nginx
+
+#=================================================
+# SEND A README FOR THE ADMIN
+#=================================================
+
+message=" $app was successfully installed :)
+Please open your $app domain: https://$domain$path_url
+
+The admin username is: $admin
+The admin password is: $admin_pass
+
+If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/Plume-org/Plume"
+ynh_send_readme_to_admin "$message" "$admin"

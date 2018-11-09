@@ -1,12 +1,12 @@
 [Unit]
-Description=__APP__ service
+Description=plume
 After=network.target
 
 [Service]
 Type=simple
-User=__APP__
-WorkingDirectory=__FINALPATH__/
-ExecStart=/bin/sh -c 'cargo run' >> /var/log/__APP__/__APP__.log 2>&1
+User=plume
+WorkingDirectory=/home/plume/Plume
+ExecStart=__FINALPATH__/.cargo/bin/plume
 TimeoutSec=30
 Restart=always
 
