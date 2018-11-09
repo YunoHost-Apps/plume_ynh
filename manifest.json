@@ -42,7 +42,7 @@
                 "name": "name",
                 "ask": {
                     "en": "Choose a name for your Plume instance"
-                }
+                },
                 "example": "My blog"
             },
             {
