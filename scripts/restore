@@ -8,7 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
-source psql.sh
+source ../settings/scripts/psql.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE

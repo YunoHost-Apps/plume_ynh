@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source ../settings/scripts/psql.sh
 
 #=================================================
 # LOAD SETTINGS
@@ -98,9 +99,11 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 ( cd $final_path/$app && git pull )
 # Give permisiion to the final_path
 chown -R "$app":"$app" "$final_path"
+export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
+export FEATURES=postgres 
 ( cd $final_path/$app && sudo -u "$app" cargo install --force ) 
 ( cd $final_path/$app && sudo -u "$app" cargo install --path plume-cli --force )
-( cd $final_path/$app && sudo -u "$app" diesel migration run )
+( cd $final_path/$app && diesel migration run )
 
 
 # Recalculate and store the config file checksum into the app settings
