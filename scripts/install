@@ -171,13 +171,13 @@ chown -R $app: $final_path
 # Add new instance
 if [ $registration -eq 1 ]
 then
- ( cd $final_path/$app && sudo -u "$app" plm instance new  --domain "$domain" --name '$instance_name' -l 'CC-BY' )
+ ( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY' )
 else
- ( cd $final_path/$app && sudo -u "$app" plm instance new --private --domain "$domain" --name '$instance_name' -l 'CC-BY' )
+ ( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY' )
 fi
 
 # Add admin user
-( cd $final_path/$app && sudo -u "$app" plm users new --admin -n "$admin" -N "$admin"  --email '$admin_email' --password "$admin_pass" )
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$admin_pass" )
 
 #=================================================
 # NGINX CONFIGURATION
