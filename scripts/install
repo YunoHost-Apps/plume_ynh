@@ -73,7 +73,7 @@ ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app instance $instance_name
 ynh_app_setting_set $app admin_email $admin_email
-ynh_app_setting_set $app registration $registraion
+ynh_app_setting_set $app registration $registration
 ynh_app_setting_set $app random_key $random_key
 
 #=================================================
