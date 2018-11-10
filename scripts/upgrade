@@ -103,7 +103,7 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 chown -R "$app":"$app" "$final_path"
 ( cd $final_path/$app && sudo -u "$app" cargo install --force ) 
 ( cd $final_path/$app && sudo -u "$app" cargo install --path plume-cli --force )
-( cd $final_path/$app &&  diesel migration run )
+
 
 
 # Recalculate and store the config file checksum into the app settings
