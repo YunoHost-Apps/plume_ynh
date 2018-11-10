@@ -101,8 +101,8 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
  export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
  export FEATURES=postgres 
 chown -R "$app":"$app" "$final_path"
-( cd $final_path/$app && sudo -u "$app" cargo install --path . --force ) 
-( cd $final_path/$app && sudo -u "$app" cargo install --path plume-cli --force )
+( cd $final_path/$app && sudo -u "$app" cargo install --no-default-features --features postgres --force ) 
+( cd $final_path/$app && sudo -u "$app" cargo install --no-default-features --features postgres --path plume-cli --force )
 ( cd $final_path/$app &&  diesel migration run )
 
 
