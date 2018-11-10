@@ -41,8 +41,6 @@ elif [ "$is_public" = "No" ]; then
 fi
 
 
-
-
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -98,8 +96,12 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 
 ( cd $final_path/$app && git pull )
 # Give permisiion to the final_path
-chown -R "$app":"$app" "$final_path"
 
+( cd $final_path && sudo -u "$app" curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-07-17 )
+ export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
+ export FEATURES=postgres 
+chown -R "$app":"$app" "$final_path"
+( cd $final_path/$app && sudo -u "$app" cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0' )
 ( cd $final_path/$app && sudo -u "$app" cargo install --force ) 
 ( cd $final_path/$app && sudo -u "$app" cargo install --path plume-cli --force )
 ( cd $final_path/$app &&  diesel migration run )
