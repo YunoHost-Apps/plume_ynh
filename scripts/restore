@@ -54,7 +54,7 @@ test ! -d $final_path \
 ###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
-ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
 
 #=================================================
 # STANDARD RESTORATION STEPS
