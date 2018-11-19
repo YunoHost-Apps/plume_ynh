@@ -66,8 +66,15 @@ systemctl stop "$app"
 # Normalize the URL path syntax
 path_url=$(ynh_normalize_url_path $path_url)
 
-# Open this port
-yunohost firewall allow --no-upnp TCP $port 2>&1
+#=================================================
+# CLOSE A PORT
+#=================================================
+
+if yunohost firewall list | grep -q "\- $port$"
+then
+	echo "Close port $port" >&2
+	yunohost firewall disallow TCP $port 2>&1
+fi
 
 #=================================================
 # CREATE DEDICATED USER

@@ -70,8 +70,15 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore_file "$final_path"
 
-# open port
-yunohost firewall allow --no-upnp TCP $port 2>&1
+#=================================================
+# CLOSE A PORT
+#=================================================
+
+if yunohost firewall list | grep -q "\- $port$"
+then
+	echo "Close port $port" >&2
+	yunohost firewall disallow TCP $port 2>&1
+fi
 
 #=================================================
 # RESTORE THE PostgreSQL DATABASE
