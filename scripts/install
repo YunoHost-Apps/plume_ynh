@@ -159,7 +159,7 @@ chown -R $app: $final_path
 
 # App settings
 ( cd $final_path && sudo -u "$app" curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly )
-source $HOME/.cargo/env
+sudo -u "$app" source $HOME/.cargo/env
  export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
  export FEATURES=postgres 
 ( cd $final_path/$app && sudo -u "$app" cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0' )
