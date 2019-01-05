@@ -178,6 +178,9 @@ fi
 # Add admin user
 ( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$admin_pass" )
 
+# Initialise search index
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/plm search init -p $final_path/$app )
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
