@@ -162,10 +162,10 @@ chown -R $app: $final_path
 PATH="$PATH:/var/www/$app/.cargo/bin" 
  export PATH="$PATH:/var/www/$app/.cargo/bin:/usr/local/sbin" 
  export FEATURES=postgres 
-( cd $final_path/$app && sudo -u "$app" -s cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0' )
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0' )
 ( cd $final_path/$app &&  diesel migration run )
-( cd $final_path/$app && sudo -u "$app" -s cargo install --no-default-features --features postgres )
-( cd $final_path/$app && sudo -u "$app" -s cargo install --no-default-features --features postgres --path plume-cli )
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/cargo install --no-default-features --features postgres )
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/cargo install --no-default-features --features postgres --path plume-cli )
 
 # Add new instance
 if [ $registration -eq 1 ]
