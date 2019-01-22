@@ -291,7 +291,7 @@ sleep 30
 ### you can make a backup of this file before modifying it again if the admin had modified it.
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum "$final_path/.env"
+ynh_store_file_checksum "$final_path/$app/.env"
 
 #=================================================
 # GENERIC FINALIZATION
