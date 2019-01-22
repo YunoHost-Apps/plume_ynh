@@ -54,7 +54,8 @@
                     "en": "Choose a name for your Plume instance",
                     "fr": "Choisissez un nom pour votre instance Plume"
                 },
-                "example": "My blog"
+                "example": "My blog",
+                "default": "My blog"
             },
             {
                 "name": "registration",
