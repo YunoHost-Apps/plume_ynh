@@ -18,10 +18,11 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
+admin=$(ynh_app_setting_get $app admin)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
+
 db_name=$(ynh_app_setting_get "$app" psql_db)
-admin=$(ynh_app_setting_get "$app" admin)
 admin_email=$(ynh_app_setting_get "$app" admin_email)
 random_key=$(ynh_app_setting_get "$app" random_key)
 name=$(ynh_app_setting_get "$app" name)
@@ -40,6 +41,17 @@ elif [ "$is_public" = "No" ]; then
 	is_public=0
 fi
 
+# If db_name doesn't exist, create it
+if [ -z $db_name ]; then
+	db_name=$(ynh_sanitize_dbid $app)
+	ynh_app_setting_set $app db_name $db_name
+fi
+
+# If final_path doesn't exist, create it
+if [ -z $final_path ]; then
+	final_path=/var/www/$app
+	ynh_app_setting_set $app final_path $final_path
+fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -67,54 +79,73 @@ systemctl stop "$app"
 path_url=$(ynh_normalize_url_path $path_url)
 
 #=================================================
-# CLOSE A PORT
+# STANDARD UPGRADE STEPS
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-if yunohost firewall list | grep -q "\- $port$"
-then
-	echo "Close port $port" >&2
-	yunohost firewall disallow TCP $port 2>&1
-fi
+# Download, check integrity, uncompress and patch the source from app.src
+#ynh_setup_source "$final_path"
+( cd $final_path/$app && git pull )
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
 
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
 
-# Create a system user
+# Create a dedicated user (if not existing)
 ynh_system_user_create "$app" "$final_path"
 
-
 #=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-
-### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
-### Those deb packages will be installed as dependencies of this package.
-### If you're not using this helper:
-###		- Remove the section "REMOVE DEPENDENCIES" in the remove script
-###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
-###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
-
-ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
-
-#=================================================
-# DOWNLOAD, CHECK AND UNPACK PLEROMA SOURCE
+# PHP-FPM CONFIGURATION
 #=================================================
 
-( cd $final_path/$app && git pull )
-# Give permisiion to the final_path
+# Create a dedicated php-fpm config
+#ynh_add_fpm_config
 
-( cd $final_path && sudo -u "$app" curl -sf -L https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly --date=2018-07-17 )
- export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
+#=================================================
+# SPECIFIC UPGRADE
+#=================================================
+# ...
+#=================================================
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK PLUME SOURCE
+#=================================================
+
+( cd $final_path && sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly' )
+PATH="$PATH:/var/www/$app/.cargo/bin" 
+ export PATH="$PATH:/var/www/$app/.cargo/bin:/usr/local/sbin" 
  export FEATURES=postgres 
 chown -R "$app":"$app" "$final_path"
-( cd $final_path/$app && sudo -u "$app" cargo install --no-default-features --features postgres --force ) 
-( cd $final_path/$app && sudo -u "$app" cargo install --no-default-features --features postgres --path plume-cli --force )
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/cargo install --no-default-features --features postgres --force ) 
+( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/cargo install --no-default-features --features postgres --path plume-cli --force )
 ( cd $final_path/$app &&  diesel migration run )
 
-
-# Recalculate and store the config file checksum into the app settings
+### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
+### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
+ynh_backup_if_checksum_is_different "$final_path/.env"
+# Recalculate and store the checksum of the file for the next upgrade.
 ynh_store_file_checksum "$final_path/$app/.env"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
 
 #=================================================
 # SETUP SYSTEMD
@@ -122,7 +153,13 @@ ynh_store_file_checksum "$final_path/$app/.env"
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
-# Set right permissions
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+
+# Set permissions on app files
 chown -R "$app":"$app" "$final_path"
 
 #=================================================
