@@ -137,8 +137,8 @@ ynh_psql_execute_as_root \
 
 ynh_app_setting_set $app final_path $final_path
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
-#git clone https://github.com/Plume-org/Plume.git "$final_path/$app"
+#ynh_setup_source "$final_path"
+git clone https://github.com/Plume-org/Plume.git "$final_path/$app"
 
 # Create the media directory, where uploads will be stored
 (cd $final_path && mkdir media )
