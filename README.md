@@ -21,6 +21,10 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 1. There is **No LDAP** support for Plume yet.
 1. **Admin username** and **password** will be sent to the **email address** of the admin.
 
+## License
+
+License AGPL-3.0-only
+
 ## Demo
 
 * [List of instances](https://joinplu.me/#instances)
