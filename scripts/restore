@@ -41,20 +41,6 @@ ynh_webpath_available $domain $path_url \
 	|| ynh_die "Path not available: ${domain}${path_url}"
 test ! -d $final_path \
 	|| ynh_die "There is already a directory: $final_path "
-	
-
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-
-### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
-### Those deb packages will be installed as dependencies of this package.
-### If you're not using this helper:
-###		- Remove the section "REMOVE DEPENDENCIES" in the remove script
-###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
-###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
-
-ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
 
 #=================================================
 # STANDARD RESTORATION STEPS
@@ -71,17 +57,7 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore_file "$final_path"
 
 #=================================================
-# CLOSE A PORT
-#=================================================
-
-if yunohost firewall list | grep -q "\- $port$"
-then
-	echo "Close port $port" >&2
-	yunohost firewall disallow TCP $port 2>&1
-fi
-
-#=================================================
-# RESTORE THE PostgreSQL DATABASE
+# RESTORE THE POSTGRESQL DATABASE
 #=================================================
 
 ynh_psql_test_if_first_run
@@ -96,7 +72,6 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 
 # Create the dedicated user (if not existing)
 ynh_system_user_create $app "$final_path"
-
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
@@ -105,11 +80,38 @@ ynh_system_user_create $app "$final_path"
 chown -R $app: $final_path 
 
 #=================================================
+# RESTORE THE PHP-FPM CONFIGURATION
+#=================================================
+
+#ynh_restore_file "/etc/php5/fpm/pool.d/$app.conf"
+
+#=================================================
+# SPECIFIC RESTORATION
+#=================================================
+# REINSTALL DEPENDENCIES
+#=================================================
+
+# Define and install dependencies
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
+
+#=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+#yunohost service add $app --log "/var/log/$app/APP.log"
+
+#=================================================
 # RESTORE SYSTEMD
 #=================================================
 
 ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable $app.service
+
+#=================================================
+# RESTORE THE CRON FILE
+#=================================================
+
+#ynh_restore_file "/etc/cron.d/$app"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
@@ -128,3 +130,4 @@ systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start
 sleep 10
+
