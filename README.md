@@ -38,8 +38,8 @@ How to configure this app: by an admin panel, a plain file with SSH, or any othe
 
 #### Multi-users support
 
-Are LDAP and HTTP auth supported?
-Can the app be used by multiple users?
+There is **No LDAP** support for Plume yet
+But the app can be used by multiple users
 
 #### Supported architectures
 
