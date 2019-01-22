@@ -107,6 +107,10 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable $app.service
 
+#Fix Your search index is locked.
+
+( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm search unlock )
+
 #=================================================
 # RESTORE THE CRON FILE
 #=================================================
