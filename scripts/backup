@@ -32,6 +32,8 @@ db_name=$(ynh_app_setting_get "$app" psql_db)
 
 # Stop Plume for backup 
 systemctl stop "$app"
+# App needs time to stop
+sleep 10
 
 #=================================================
 # STANDARD BACKUP STEPS

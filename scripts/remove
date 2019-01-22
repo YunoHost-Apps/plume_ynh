@@ -47,9 +47,9 @@ fi
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
-export PATH="$PATH:/var/www/$app/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
+export PATH="$PATH:$final_path/.cargo/bin:/var/$app/.local/bin:/usr/local/sbin" 
 export FEATURES=postgres 
-( cd $final_path/$app && sudo -u "$app" /var/www/$app/.cargo/bin/cargo uninstall diesel_cli )
+( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/cargo uninstall diesel_cli )
 
 if [ -d "/usr/local/lib/rustlib" ]; then
 	sudo /usr/local/lib/rustlib/uninstall.sh
