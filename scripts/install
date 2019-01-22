@@ -27,12 +27,12 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
-instance_name=$YNH_APP_ARG_NAME
 admin=$YNH_APP_ARG_ADMIN
+is_public=$YNH_APP_ARG_IS_PUBLIC
+instance_name=$YNH_APP_ARG_NAME
+registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
 admin_pass=$(ynh_string_random 24)
-registration=$YNH_APP_ARG_REGISTRATION
-is_public=$YNH_APP_ARG_IS_PUBLIC
 random_key=$(openssl rand -base64 32)
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
@@ -70,11 +70,11 @@ ynh_webpath_register $app $domain $path_url
 
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
-ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app admin $admin
+ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app instance $instance_name
-ynh_app_setting_set $app admin_email $admin_email
 ynh_app_setting_set $app registration $registration
+ynh_app_setting_set $app admin_email $admin_email
 ynh_app_setting_set $app random_key $random_key
 
 #=================================================
