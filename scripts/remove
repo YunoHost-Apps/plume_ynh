@@ -56,6 +56,13 @@ if [ -d "/usr/local/lib/rustlib" ]; then
 fi
 
 #=================================================
+# REMOVE THE POSTGRESQL DATABASE
+#=================================================
+
+# Remove a database if it exists, along with the associated user
+ynh_psql_remove_db "$db_name" "$app"
+
+#=================================================
 # REMOVE APP MAIN DIR
 #=================================================
 
@@ -70,11 +77,11 @@ ynh_secure_remove "$final_path"
 ynh_remove_nginx_config
 
 #=================================================
-# REMOVE THE PSQL DATABASE
+# REMOVE PHP-FPM CONFIGURATION
 #=================================================
 
-# Remove a database if it exists, along with the associated user
-ynh_psql_remove_db "$db_name" "$app"
+# Remove the dedicated php-fpm config
+#ynh_remove_fpm_config
 
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION
@@ -92,6 +99,20 @@ then
 	echo "Close port $port" >&2
 	yunohost firewall disallow TCP $port 2>&1
 fi
+#=================================================
+# SPECIFIC REMOVE
+#=================================================
+# REMOVE THE CRON FILE
+#=================================================
+
+# Remove a cron file
+#ynh_secure_remove "/etc/cron.d/$app"
+
+# Remove a directory securely
+ynh_secure_remove "/etc/$app/"
+
+# Remove the log files
+ynh_secure_remove "/var/log/$app/"
 
 #=================================================
 # GENERIC FINALIZATION
