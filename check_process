@@ -7,9 +7,9 @@
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
 		admin="john" (USER)
+		is_public=1	(PUBLIC|public=1|private=0)
 		name="my blog"
 		registration=0 (BOOLEAN)
-		is_public=1	(PUBLIC|public=1|private=0)
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
