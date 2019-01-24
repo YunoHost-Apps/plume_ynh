@@ -72,6 +72,7 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 
 # Create the dedicated user (if not existing)
 ynh_system_user_create $app "$final_path"
+
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
@@ -94,11 +95,6 @@ chown -R $app: $final_path
 # Define and install dependencies
 ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
 
-#=================================================
-# ADVERTISE SERVICE IN ADMIN PANEL
-#=================================================
-
-#yunohost service add $app --log "/var/log/$app/APP.log"
 
 #=================================================
 # RESTORE SYSTEMD
@@ -110,6 +106,12 @@ systemctl enable $app.service
 #Fix Your search index is locked.
 
 ( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm search unlock )
+
+#=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+yunohost service add $app --log "/var/log/$app/$app.log"
 
 #=================================================
 # RESTORE THE CRON FILE
@@ -126,12 +128,16 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND START PLEROMA
+# RELOAD NGINX AND PHP-FPM
 #=================================================
 
+#systemctl reload php5-fpm
 systemctl reload nginx
-systemctl enable "$app"
-systemctl start "$app"
-# App needs time to start
-sleep 10
+
+#=================================================
+# START SERVICE
+#=================================================
+
+yunohost service start $app
+
 

@@ -241,9 +241,6 @@ fi
 
 # Create a dedicated systemd config
 ynh_add_systemd_config
-systemctl enable "$app"
-systemctl start "$app"
-sleep 30
 
 #=================================================
 # SETUP APPLICATION WITH CURL
@@ -336,7 +333,7 @@ ynh_use_logrotate
 
 #yunohost service add $app --log "/var/log/$app/APP.log"
 # if using yunohost version 3.2 or more in the 'manifest.json', a description can be added
-#yunohost service add $app --description "$app daemon for XXX" --log "/var/log/$app/APP.log"
+yunohost service add $app --description "$app daemon for XXX" --log "/var/log/$app/$app.log"
 
 #=================================================
 # SETUP SSOWAT
@@ -354,6 +351,12 @@ fi
 #=================================================
 
 systemctl reload nginx
+
+#=================================================
+# START SERVICE
+#=================================================
+
+yunohost service start $app
 
 #=================================================
 # SEND A README FOR THE ADMIN
