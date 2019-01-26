@@ -119,6 +119,16 @@ ynh_system_user_create "$app" "$final_path"
 #=================================================
 
 #=================================================
+# CLOSE A PORT
+#=================================================
+
+if yunohost firewall list | grep -q "\- $port$"
+then
+	echo "Close port $port" >&2
+	yunohost firewall disallow TCP $port 2>&1
+fi
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK PLUME SOURCE
 #=================================================
 
