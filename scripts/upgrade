@@ -68,8 +68,6 @@ ynh_abort_if_errors
 # Stop Plume for upgrade
 yunohost service stop "$app"
 
-
-
 #=================================================
 # CHECK THE PATH
 #=================================================
