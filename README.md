@@ -9,7 +9,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 ## Overview
 Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database. 
 
-**Shipped version:** 0.2.0-alpha-1
+**Shipped version:** 0.2.0
 
 **Warning:** The package can take **15 to 30 minutes** to complete depending on your system configuration. **Don't intrupt the installation process while installing.**
 
@@ -65,6 +65,7 @@ https://yunohost.org/packaging_apps
 
  * Report a bug: https://github.com/YunoHost-Apps/plume_ynh/issues
  * App website: https://joinplu.me/
+ * App Github: https://github.com/Plume-org/Plume
  * YunoHost website: https://yunohost.org/
 
 ---
