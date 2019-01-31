@@ -8,6 +8,7 @@
 		domain="domain.tld"	(DOMAIN)
 		admin="john" (USER)
 		is_public=1	(PUBLIC|public=1|private=0)
+		password="pass"
 		name="my blog"
 		registration=0 (BOOLEAN)
 	; Checks

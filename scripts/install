@@ -29,10 +29,10 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
+password=$YNH_APP_ARG_PASSWORD
 instance_name=$YNH_APP_ARG_NAME
 registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
-admin_pass=$(ynh_string_random 24)
 random_key=$(openssl rand -base64 32)
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
@@ -219,7 +219,7 @@ else
 fi
 
 # Add admin user
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$admin_pass" )
+( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$password" )
 
 # Initialise search index
 ( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm search init -p $final_path/$app )
@@ -357,16 +357,3 @@ systemctl reload nginx
 #=================================================
 
 yunohost service start $app
-
-#=================================================
-# SEND A README FOR THE ADMIN
-#=================================================
-
-message=" $app was successfully installed :)
-Please open your $app domain: https://$domain$path_url
-
-The admin username is: $admin
-The admin password is: $admin_pass
-
-If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/Plume-org/Plume"
-ynh_send_readme_to_admin "$message" "$admin"
