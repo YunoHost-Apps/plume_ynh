@@ -106,7 +106,6 @@ yunohost service start $app
 ynh_backup_if_checksum_is_different "$final_path/$app/.env"
 # Recalculate and store the checksum of the file for the next upgrade.
 ynh_store_file_checksum "$final_path/$app/.env"
-ynh_store_file_checksum "$final_path/$app/.env"
 
 #=================================================
 # GENERIC FINALISATION
