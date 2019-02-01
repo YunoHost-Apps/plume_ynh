@@ -181,13 +181,17 @@ ynh_system_user_create "$app" "$final_path"
 #=================================================
 # SPECIFIC SETUP
 #=================================================
-# ...
+# CREATE LOG FOLDER
 #=================================================
-# setup application config
-sudo  cp ../conf/.env $final_path/$app/.env
+
+mkdir -p "/var/log/$app"
+chown -R "$app":"$app" "/var/log/$app"
+
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
+# setup application config
+sudo  cp "../conf/.env" "$final_path/$app/.env"
 ynh_replace_string "__DBNAME__"     "$db_name"    "$final_path/$app/.env"
 ynh_replace_string "__PSQLPWD__"    "$db_pwd"     "$final_path/$app/.env"
 ynh_replace_string "__DOMAIN__"     "$domain"     "$final_path/$app/.env"
@@ -195,10 +199,12 @@ ynh_replace_string "__PORT__"       "$port"       "$final_path/$app/.env"
 ynh_replace_string "__DB_USER__"    "$app"        "$final_path/$app/.env"
 ynh_replace_string "__KEY__"        "$random_key" "$final_path/$app/.env"
 
+#=================================================
+# MAKE SETUP
+#=================================================
 
 # Set right permissions 
-chown -R $app: $final_path
-
+chown -R "$app":"$app" $final_path
 
 # App settings
 ( cd $final_path && sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly' )
