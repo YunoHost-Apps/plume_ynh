@@ -115,3 +115,4 @@ ynh_store_file_checksum "$final_path/$app/.env"
 #=================================================
 
 systemctl reload nginx
+sleep 30
