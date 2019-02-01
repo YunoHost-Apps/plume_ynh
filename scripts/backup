@@ -8,6 +8,7 @@
 
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source ../settings/scripts/ynh_systemd_action
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -15,7 +16,7 @@ source /usr/share/yunohost/helpers
 
 ynh_clean_setup () {
 	### Remove this function if there's nothing to clean before calling the remove script.
-	true
+	ynh_clean_check_starting
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -29,9 +30,6 @@ app=$YNH_APP_INSTANCE_NAME
 final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
 db_name=$(ynh_app_setting_get "$app" psql_db)
-
-# Stop Plume for backup 
-yunohost service stop "$app"
 
 #=================================================
 # STANDARD BACKUP STEPS
@@ -79,9 +77,3 @@ ynh_backup "/etc/systemd/system/$app.service"
 #=================================================
 
 #ynh_backup "/etc/cron.d/$app"
-
-#=================================================
-# START SERVICE
-#=================================================
-
-yunohost service start $app
