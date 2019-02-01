@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/Plume-org/Plume/archive/0.2.0-alpha-1.tar.gz
-SOURCE_SUM=5e825275e00420bb3fb3fbac496b2ffb310d84ffab8c872293e7d73f752917b2
+SOURCE_URL=url of app's source
+SOURCE_SUM=sha256 checksum
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
