@@ -22,9 +22,9 @@ admin=$(ynh_app_setting_get $app admin)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 
-db_name=$(ynh_app_setting_get "$app" psql_db)
+db_name=$(ynh_app_setting_get "$app" db_name)
 admin_email=$(ynh_app_setting_get "$app" admin_email)
-random_key=$(ynh_app_setting_get "$app" random_key)
+secret_key=$(ynh_app_setting_get "$app" secret_key)
 name=$(ynh_app_setting_get "$app" name)
 port=$(ynh_app_setting_get "$app" port)
 

@@ -31,8 +31,8 @@ domain=$(ynh_app_setting_get $app domain)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
 port=$(ynh_app_setting_get "$app" port)
-db_name=$(ynh_app_setting_get "$app" psql_db)
-db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
+db_name=$(ynh_app_setting_get "$app" db_name)
+db_pwd=$(ynh_app_setting_get "$app" db_pwd)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
@@ -63,9 +63,9 @@ ynh_restore_file "$final_path"
 
 ynh_install_app_dependencies postgresql postgresql-contrib
 ynh_psql_test_if_first_run
-ynh_psql_create_user "$app" "$db_pwd"
+ynh_psql_create_user "$db_name" "$db_pwd"
 ynh_psql_execute_as_root \
-"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $db_name;"
 ynh_psql_execute_file_as_root ./db.sql "$db_name"
 
 #=================================================
@@ -80,7 +80,7 @@ ynh_system_user_create "$app" "$final_path"
 #=================================================
 
 # Restore permissions on app files
-chown -R $app: $final_path 
+chown -R "$app":"$app" $final_path
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
@@ -107,8 +107,11 @@ systemctl enable $app.service
 systemctl daemon-reload
 
 #Fix Your search index is locked.
+export PATH="$PATH:$final_path/.cargo/bin:/usr/local/sbin" 
 
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm search unlock )
+pushd $final_path/$app
+    sudo -u "$app" env PATH=$PATH plm search unlock
+popd
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
