@@ -7,6 +7,7 @@
 #=================================================
 
 source _common.sh
+source ynh_systemd_action
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -21,11 +22,23 @@ admin=$(ynh_app_setting_get $app admin)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 
-db_name=$(ynh_app_setting_get "$app" psql_db)
+db_name=$(ynh_app_setting_get "$app" db_name)
 admin_email=$(ynh_app_setting_get "$app" admin_email)
-random_key=$(ynh_app_setting_get "$app" random_key)
+secret_key=$(ynh_app_setting_get "$app" secret_key)
 name=$(ynh_app_setting_get "$app" name)
 port=$(ynh_app_setting_get "$app" port)
+
+psql_db=$(ynh_app_setting_get "$app" psql_db)
+
+if [ -n "$psql_db" ]
+then
+    db_name=$(ynh_app_setting_get "$app" psql_db)
+    db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
+    ynh_app_setting_set "$app" db_name "$db_name"
+    ynh_app_setting_set "$app" db_pwd "$db_pwd"
+	ynh_app_setting_delete "$app" psql_db
+	ynh_app_setting_delete "$app" psqlpwd
+fi
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -61,12 +74,16 @@ ynh_backup_before_upgrade
 ynh_clean_setup () {
 	# restore it if the upgrade fails
 	ynh_restore_upgradebackup
+	ynh_clean_check_starting
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-# Stop Plume for upgrade
-yunohost service stop "$app"
+#=================================================
+# STOP SERVICE
+#=================================================
+
+ynh_systemd_action --action=stop --service_name=$app
 
 #=================================================
 # CHECK THE PATH
@@ -115,8 +132,11 @@ ynh_system_user_create "$app" "$final_path"
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-# ...
+# CREATE LOG FOLDER
 #=================================================
+
+mkdir -p "/var/log/$app"
+chown -R "$app":"$app" "/var/log/$app"
 
 #=================================================
 # CLOSE A PORT
@@ -190,5 +210,4 @@ systemctl reload nginx
 # START SERVICE
 #=================================================
 
-yunohost service start $app
-sleep 30
+ynh_systemd_action --action=start --service_name=$app

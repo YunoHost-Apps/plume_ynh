@@ -7,7 +7,7 @@
 #=================================================
 
 source _common.sh
-source ynh_send_readme_to_admin
+source ynh_systemd_action
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -16,7 +16,7 @@ source /usr/share/yunohost/helpers
 
 ynh_clean_setup () {
 	### Remove this function if there's nothing to clean before calling the remove script.
-	true
+	ynh_clean_check_starting
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -33,7 +33,7 @@ password=$YNH_APP_ARG_PASSWORD
 instance_name=$YNH_APP_ARG_NAME
 registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
-random_key=$(openssl rand -base64 32)
+secret_key=$(openssl rand -base64 32)
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
 ### The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -75,7 +75,7 @@ ynh_app_setting_set $app is_public $is_public
 ynh_app_setting_set $app instance $instance_name
 ynh_app_setting_set $app registration $registration
 ynh_app_setting_set $app admin_email $admin_email
-ynh_app_setting_set $app random_key $random_key
+ynh_app_setting_set $app secret_key $secret_key
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -121,11 +121,11 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 ynh_psql_test_if_first_run
 db_name="$app"
 db_pwd=$(ynh_string_random 30)
-ynh_app_setting_set "$app" psql_db "$db_name"
-ynh_app_setting_set "$app" psqlpwd "$db_pwd"
-ynh_psql_create_user "$app" "$db_pwd"
+ynh_app_setting_set "$app" db_name "$db_name"
+ynh_app_setting_set "$app" db_pwd "$db_pwd"
+ynh_psql_create_user "$db_name" "$db_pwd"
 ynh_psql_execute_as_root \
-"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $db_name;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -142,7 +142,6 @@ git clone https://github.com/Plume-org/Plume.git "$final_path/$app"
 
 # Create the media directory, where uploads will be stored
 (cd $final_path && mkdir media )
-
 
 #=================================================
 # NGINX CONFIGURATION
@@ -181,48 +180,57 @@ ynh_system_user_create "$app" "$final_path"
 #=================================================
 # SPECIFIC SETUP
 #=================================================
-# ...
+# CREATE LOG FOLDER
 #=================================================
-# setup application config
-sudo  cp ../conf/.env $final_path/$app/.env
+
+mkdir -p "/var/log/$app"
+chown -R "$app":"$app" "/var/log/$app"
+
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
-ynh_replace_string "__DBNAME__"     "$db_name"    "$final_path/$app/.env"
-ynh_replace_string "__PSQLPWD__"    "$db_pwd"     "$final_path/$app/.env"
+# setup application config
+sudo  cp "../conf/.env" "$final_path/$app/.env"
+ynh_replace_string "__DB_NAME__"     "$db_name"    "$final_path/$app/.env"
+ynh_replace_string "__DB_PWD__"    "$db_pwd"     "$final_path/$app/.env"
 ynh_replace_string "__DOMAIN__"     "$domain"     "$final_path/$app/.env"
 ynh_replace_string "__PORT__"       "$port"       "$final_path/$app/.env"
-ynh_replace_string "__DB_USER__"    "$app"        "$final_path/$app/.env"
-ynh_replace_string "__KEY__"        "$random_key" "$final_path/$app/.env"
+ynh_replace_string "__SECRET_KEY__"        "$secret_key" "$final_path/$app/.env"
 
+#=================================================
+# MAKE SETUP
+#=================================================
 
 # Set right permissions 
-chown -R $app: $final_path
+chown -R "$app":"$app" $final_path
 
+# Install
+pushd $final_path
+    sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly'
+popd
 
-# App settings
-( cd $final_path && sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly' )
-PATH="$PATH:$final_path/.cargo/bin" 
- export PATH="$PATH:$final_path/.cargo/bin:/usr/local/sbin" 
- export FEATURES=postgres 
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0' )
-( cd $final_path/$app &&  diesel migration run )
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/cargo install --no-default-features --features postgres )
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/cargo install --no-default-features --features postgres --path plume-cli )
+export PATH="$PATH:$final_path/.cargo/bin:/usr/local/sbin" 
 
-# Add new instance
-if [ $registration -eq 1 ]
-then
- ( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY' )
-else
- ( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY' )
-fi
+pushd $final_path/$app
+    sudo -u "$app" env PATH=$PATH cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0'
+    sudo -u "$app" env PATH=$PATH diesel migration run
+    sudo -u "$app" env PATH=$PATH cargo install --no-default-features --features postgres
+    sudo -u "$app" env PATH=$PATH cargo install --no-default-features --features postgres --path plume-cli
 
-# Add admin user
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$password" )
+    # Add new instance
+    if [ $registration -eq 1 ]
+    then
+         sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY'
+    else
+         sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY'
+    fi
 
-# Initialise search index
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/plm search init -p $final_path/$app )
+    # Add admin user
+    sudo -u "$app" env PATH=$PATH plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$password"
+
+    # Initialise search index
+    sudo -u "$app" env PATH=$PATH plm search init -p $final_path/$app
+popd
 
 #=================================================
 # SETUP SYSTEMD
@@ -302,7 +310,7 @@ ynh_store_file_checksum "$final_path/$app/.env"
 ### that really need such authorization.
 
 # Set permissions to app files
-chown -R $app: $final_path
+# chown -R $app: $final_path
 
 #=================================================
 # SETUP LOGROTATE
@@ -356,5 +364,4 @@ systemctl reload nginx
 # START SERVICE
 #=================================================
 
-yunohost service start $app
-sleep 30
+ynh_systemd_action --action=start --service_name=$app
