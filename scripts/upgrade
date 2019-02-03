@@ -28,7 +28,9 @@ secret_key=$(ynh_app_setting_get "$app" secret_key)
 name=$(ynh_app_setting_get "$app" name)
 port=$(ynh_app_setting_get "$app" port)
 
-if [$(ynh_app_setting_get "$app" psql_db)]
+psql_db=$(ynh_app_setting_get "$app" psql_db)
+
+if [ -n "$psql_db" ]
 then
     db_name=$(ynh_app_setting_get "$app" psql_db)
     db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
