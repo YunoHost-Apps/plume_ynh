@@ -27,7 +27,7 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 
 ## License
 
-LICENSE AGPL-3.0-only
+**LICENSE:** AGPL-3.0-only
 
 ## Demo
 
