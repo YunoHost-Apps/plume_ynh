@@ -22,7 +22,7 @@ admin=$(ynh_app_setting_get $app admin)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 
-db_name=$(ynh_app_setting_get "$app" db_name)
+db_name=$(ynh_app_setting_get $app db_name)
 admin_email=$(ynh_app_setting_get "$app" admin_email)
 secret_key=$(ynh_app_setting_get "$app" secret_key)
 name=$(ynh_app_setting_get "$app" name)
@@ -113,7 +113,7 @@ ynh_add_nginx_config
 # UPGRADE DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config
 
 #=================================================
 # CREATE DEDICATED USER
@@ -152,14 +152,21 @@ fi
 # DOWNLOAD, CHECK AND UNPACK PLUME SOURCE
 #=================================================
 
-( cd $final_path && sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly' )
-PATH="$PATH:$final_path/.cargo/bin" 
- export PATH="$PATH:$final_path/.cargo/bin:/usr/local/sbin" 
- export FEATURES=postgres 
-chown -R "$app":"$app" "$final_path"
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/cargo install --no-default-features --features postgres --force ) 
-( cd $final_path/$app && sudo -u "$app" $final_path/.cargo/bin/cargo install --no-default-features --features postgres --path plume-cli --force )
-( cd $final_path/$app &&  diesel migration run )
+# Set right permissions 
+chown -R "$app":"$app" $final_path
+
+# Install
+pushd $final_path
+    sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly'
+popd
+
+export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
+
+pushd $final_path/$app
+    sudo -u "$app" env PATH=$PATH cargo install --no-default-features --features postgres --force
+    sudo -u "$app" env PATH=$PATH cargo install --no-default-features --features postgres --path plume-cli --force
+    sudo -u "$app" env PATH=$PATH diesel migration run
+popd 
 
 ### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
 ### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
@@ -177,6 +184,7 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP SYSTEMD
 #=================================================
+
 # Create a dedicated systemd config
 ynh_add_systemd_config
 

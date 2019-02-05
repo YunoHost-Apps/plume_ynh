@@ -59,8 +59,6 @@ test ! -e "$final_path" || ynh_die "This path already contains a folder"
 # Normalize the url path syntax
 path_url=$(ynh_normalize_url_path $path_url)
 
-# Check web path availability
-ynh_webpath_available $domain $path_url
 # Register (book) web path
 ynh_webpath_register $app $domain $path_url
 
@@ -105,7 +103,7 @@ ynh_app_setting_set $app port $port
 ###		- As well as the section "REINSTALL DEPENDENCIES" in the restore script
 ###		- And the section "UPGRADE DEPENDENCIES" in the upgrade script
 
-ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config sqlite3 libsqlite3-dev
+ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE
@@ -119,9 +117,9 @@ ynh_install_app_dependencies gettext postgresql postgresql-contrib libpq-dev git
 ###		- As well as the section "RESTORE THE POSTGRESQL DATABASE" in the restore script
 
 ynh_psql_test_if_first_run
-db_name="$app"
+db_name=$(ynh_sanitize_dbid $app)
 db_pwd=$(ynh_string_random 30)
-ynh_app_setting_set "$app" db_name "$db_name"
+ynh_app_setting_set $app db_name $db_name
 ynh_app_setting_set "$app" db_pwd "$db_pwd"
 ynh_psql_create_user "$db_name" "$db_pwd"
 ynh_psql_execute_as_root \
@@ -141,14 +139,13 @@ ynh_app_setting_set $app final_path $final_path
 git clone https://github.com/Plume-org/Plume.git "$final_path/$app"
 
 # Create the media directory, where uploads will be stored
-(cd $final_path && mkdir media )
+mkdir $final_path/media
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
 
 ### `ynh_add_nginx_config` will use the file conf/nginx.conf
-
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
@@ -189,6 +186,7 @@ chown -R "$app":"$app" "/var/log/$app"
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
+
 # setup application config
 sudo  cp "../conf/.env" "$final_path/$app/.env"
 ynh_replace_string "__DB_NAME__"     "$db_name"    "$final_path/$app/.env"
@@ -209,7 +207,7 @@ pushd $final_path
     sudo -u "$app" RUSTUP_HOME=$final_path/.rustup CARGO_HOME=$final_path/.cargo bash -c 'curl -sSf -L https://static.rust-lang.org/rustup.sh | sh -s -- -y --default-toolchain=nightly'
 popd
 
-export PATH="$PATH:$final_path/.cargo/bin:/usr/local/sbin" 
+export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
     sudo -u "$app" env PATH=$PATH cargo install diesel_cli --no-default-features --features postgres --version '=1.3.0'
