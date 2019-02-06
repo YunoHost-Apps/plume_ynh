@@ -18,7 +18,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
 port=$(ynh_app_setting_get $app port)
-db_name=$(ynh_app_setting_get "$app" db_name)
+db_name=$(ynh_app_setting_get $app db_name)
 final_path=$(ynh_app_setting_get $app final_path)
 
 #=================================================
@@ -46,7 +46,7 @@ ynh_remove_systemd_config
 #=================================================
 
 # Remove a database if it exists, along with the associated user
-ynh_psql_remove_db "$db_name" "$app"
+ynh_psql_remove_db "$db_name" "$db_name"
 
 #=================================================
 
@@ -56,7 +56,7 @@ ynh_psql_remove_db "$db_name" "$app"
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
 
-export PATH="$PATH:$final_path/.cargo/bin:/usr/local/sbin" 
+export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
     sudo -u "$app" env PATH=$PATH cargo uninstall diesel_cli
@@ -103,6 +103,7 @@ then
 	echo "Close port $port" >&2
 	yunohost firewall disallow TCP $port 2>&1
 fi
+
 #=================================================
 # SPECIFIC REMOVE
 #=================================================

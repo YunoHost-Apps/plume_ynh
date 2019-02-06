@@ -33,14 +33,9 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 
 * [List of instances](https://joinplu.me/#instances)
 
-## Configuration
-
-How to configure this app: by an admin panel, a plain file with SSH, or any other way.
-
 ## Documentation
 
  * Official documentation: https://docs.joinplu.me/
- * YunoHost documentation: If specific documentation is needed, feel free to contribute.
 
 ## YunoHost specific features
 
@@ -54,19 +49,11 @@ But the app can be used by multiple users
 * x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/plume%20%28Community%29.svg)](https://ci-apps.yunohost.org/ci/apps/plume/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/plume%20%28Community%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/plume/)
 * Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/plume%20%28Community%29.svg)](https://ci-stretch.nohost.me/ci/apps/plume/)
-* Testing x86-64b - [![Build Status](https://ci-apps-unstable.yunohost.org/ci/logs/plume%20%28Community%29%20%28testing%29.svg)](https://ci-apps-unstable.yunohost.org/ci/apps/plume/)
-* Unstable x86-64b - [![Build Status](https://ci-apps-unstable.yunohost.org/ci/logs/plume%20%28Community%29%20%28unstable%29.svg)](https://ci-apps-unstable.yunohost.org/ci/apps/plume/)
 
 ## Limitations
 
-* Any known limitations.
+* No known limitations.
 
-## Additional information
-
-* Other information you would add about this application
-
-**More information on the documentation page:**  
-https://yunohost.org/packaging_apps
 ## Links
 
  * Report a bug: https://github.com/YunoHost-Apps/plume_ynh/issues
