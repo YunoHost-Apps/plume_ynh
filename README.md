@@ -25,10 +25,6 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 
 ![plume-screenshot1](https://user-images.githubusercontent.com/30271971/52232065-d6d83600-28bb-11e9-9a0a-b4b139c2eb25.png)
 
-## License
-
-**LICENSE:** AGPL-3.0-only
-
 ## Demo
 
 * [List of instances](https://joinplu.me/#instances)
