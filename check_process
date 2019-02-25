@@ -39,5 +39,5 @@
 	Level 9=0
 	Level 10=0
 ;;; Options
-Email=anmol@datamol.org
-Notification=yes
+Email=anmol@datamol.org;yalh@yahoo.com
+Notification=change
