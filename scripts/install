@@ -33,7 +33,7 @@ password=$YNH_APP_ARG_PASSWORD
 instance_name=$YNH_APP_ARG_NAME
 registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
-secret_key=$(ynh_string_random 64)
+secret_key=$(ynh_string_random 43)
 secret_key="${secret_key}="
 
 ### If it's a multi-instance app, meaning it can be installed several times independently
