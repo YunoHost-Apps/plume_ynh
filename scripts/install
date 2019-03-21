@@ -128,8 +128,7 @@ db_pwd=$(ynh_string_random 30)
 ynh_app_setting_set $app db_name $db_name
 ynh_app_setting_set "$app" db_pwd "$db_pwd"
 ynh_psql_create_user "$db_name" "$db_pwd"
-ynh_psql_execute_as_root \
-"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $db_name;"
+ynh_psql_execute_as_root "CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $db_name;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -379,7 +378,7 @@ systemctl reload nginx
 # START SERVICE
 #=================================================
 
-ynh_systemd_action --action=start --service_name=$app
+ynh_systemd_action --action=start --service_name=$app --log_path=systemd --line_match="Started plume"
 
 #=================================================
 # END OF SCRIPT
