@@ -6,7 +6,7 @@
         "en": "Federated blogging application",
         "fr": "Une application de blogging fédérée."
     },
-    "version": "0.2.0~ynh2",
+    "version": "0.2.0~ynh3",
     "url": "https://baptiste.gelez.xyz/",
     "license": "AGPL-3.0-only",
     "maintainer": {
