@@ -29,17 +29,6 @@ secret_key=$(ynh_app_setting_get "$app" secret_key)
 name=$(ynh_app_setting_get "$app" name)
 port=$(ynh_app_setting_get "$app" port)
 
-psql_db=$(ynh_app_setting_get "$app" psql_db)
-
-if [ -n "$psql_db" ]
-then
-    db_name=$(ynh_app_setting_get "$app" psql_db)
-    db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
-    ynh_app_setting_set "$app" db_name "$db_name"
-    ynh_app_setting_set "$app" db_pwd "$db_pwd"
-	ynh_app_setting_delete "$app" psql_db
-	ynh_app_setting_delete "$app" psqlpwd
-fi
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -65,6 +54,19 @@ fi
 if [ -z $final_path ]; then
 	final_path=/var/www/$app
 	ynh_app_setting_set $app final_path $final_path
+fi
+
+#Fix previous database name
+psql_db=$(ynh_app_setting_get "$app" psql_db)
+
+if [ -n "$psql_db" ]
+then
+    db_name=$(ynh_app_setting_get "$app" psql_db)
+    db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
+    ynh_app_setting_set "$app" db_name "$db_name"
+    ynh_app_setting_set "$app" db_pwd "$db_pwd"
+	ynh_app_setting_delete "$app" psql_db
+	ynh_app_setting_delete "$app" psqlpwd
 fi
 
 #=================================================
@@ -103,11 +105,9 @@ path_url=$(ynh_normalize_url_path $path_url)
 ynh_print_info "Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
-#ynh_setup_source "$final_path"
-pushd $final_path/$app
-    git reset --hard
-    git pull --quiet
-popd
+git clone --quiet https://github.com/Plume-org/Plume.git "$final_path/upgrade"
+cp -a "$final_path/upgrade/." "$final_path/$app/."
+rm -r "$final_path/upgrade"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -131,14 +131,6 @@ ynh_print_info "Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
 ynh_system_user_create "$app" "$final_path"
-
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-ynh_print_info "Upgrading php-fpm configuration..."
-
-# Create a dedicated php-fpm config
-#ynh_add_fpm_config
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -179,8 +171,6 @@ pushd $final_path/$app
     sudo -u "$app" env PATH=$PATH diesel migration run
 popd 
 
-### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
-### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
 ynh_backup_if_checksum_is_different "$final_path/.env"
 # Recalculate and store the checksum of the file for the next upgrade.
 ynh_store_file_checksum "$final_path/$app/.env"
