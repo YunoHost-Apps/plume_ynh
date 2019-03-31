@@ -86,14 +86,6 @@ ynh_print_info "Removing nginx web server configuration"
 ynh_remove_nginx_config
 
 #=================================================
-# REMOVE PHP-FPM CONFIGURATION
-#=================================================
-ynh_print_info "Removing php-fpm configuration"
-
-# Remove the dedicated php-fpm config
-#ynh_remove_fpm_config
-
-#=================================================
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
 ynh_print_info "Removing logrotate configuration"
@@ -117,9 +109,6 @@ fi
 #=================================================
 # REMOVE THE CRON FILE
 #=================================================
-
-# Remove a cron file
-#ynh_secure_remove "/etc/cron.d/$app"
 
 # Remove a directory securely
 ynh_secure_remove "/etc/$app/"
