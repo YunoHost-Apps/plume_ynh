@@ -9,10 +9,14 @@
     "version": "0.2.0~ynh3",
     "url": "https://baptiste.gelez.xyz/",
     "license": "AGPL-3.0-only",
-    "maintainer": {
-        "name": "Anmol Sharma, yalh76",
-        "email": "anmol@datamol.org"
-    },
+    "maintainer": [
+        {
+            "name": "Anmol Sharma",
+            "email": "anmol@datamol.org"
+        },
+        {
+            "name": "yalh76"
+        }],
     "requirements": {
         "yunohost": ">= 3.4"
     },
