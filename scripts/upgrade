@@ -29,7 +29,6 @@ secret_key=$(ynh_app_setting_get "$app" secret_key)
 name=$(ynh_app_setting_get "$app" name)
 port=$(ynh_app_setting_get "$app" port)
 
-
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
@@ -105,9 +104,7 @@ path_url=$(ynh_normalize_url_path $path_url)
 ynh_print_info "Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
-git clone --quiet https://github.com/Plume-org/Plume.git "$final_path/upgrade"
-cp -a "$final_path/upgrade/." "$final_path/$app/."
-rm -r "$final_path/upgrade"
+ynh_setup_source "$final_path/$app"
 
 #=================================================
 # NGINX CONFIGURATION
