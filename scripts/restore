@@ -15,6 +15,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 ynh_clean_setup () {
+	read -p "key"
 	ynh_clean_check_starting
 }
 # Exit if an error occurs during the execution of the script
@@ -102,13 +103,6 @@ ynh_print_info "Restoring the systemd configuration..."
 ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable $app.service
 systemctl daemon-reload
-
-#Fix Your search index is locked.
-export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
-
-pushd $final_path/$app
-    sudo -u "$app" env PATH=$PATH plm search unlock
-popd
 
 #=================================================
 # CREATE LOG FOLDER
