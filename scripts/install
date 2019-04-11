@@ -32,7 +32,7 @@ password=$YNH_APP_ARG_PASSWORD
 instance_name=$YNH_APP_ARG_NAME
 registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
-secret_key=$(openssl rand -base64 32)
+secret_key=$(ynh_string_random 32 | base64)
 
 app=$YNH_APP_INSTANCE_NAME
 
