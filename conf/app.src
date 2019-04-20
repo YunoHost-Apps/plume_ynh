@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/Plume-org/Plume/archive/0d708e163930779d149a8cb94766d8f4decbf080.tar.gz
-SOURCE_SUM=264eb9d605ee820387414153ce28bbb79e314cdf516ba9ef7ef72381be2e7602
+SOURCE_URL=https://github.com/Plume-org/Plume/archive/0.3.0-alpha-2.tar.gz
+SOURCE_SUM=88d31a7ff527132f5cf252b2f446bb42a13e01eec5b30cf877f63abf095988cd
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
