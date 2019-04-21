@@ -9,7 +9,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 ## Overview
 Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database. 
 
-**Shipped version:** 0.2.0-2019-04-18
+**Shipped version:** 0.3.0-alpha-2
 
 **Warning:** The package can take **15 to 30 minutes** to complete depending on your system configuration. **Don't intrupt the installation process while installing.**
 
