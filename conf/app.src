@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/Plume-org/Plume/archive/0.3.0-alpha-2.tar.gz
-SOURCE_SUM=88d31a7ff527132f5cf252b2f446bb42a13e01eec5b30cf877f63abf095988cd
+SOURCE_URL=https://github.com/Plume-org/Plume/releases/download/0.3.0-alpha-2/plume-postgres.tar.gz
+SOURCE_SUM=e0c33a38367a5428606ae7bf8524c325edea09fdb4511c80a7aa8f4eb8f30905
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
