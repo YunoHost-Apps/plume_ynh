@@ -5,7 +5,7 @@
 #=================================================
 
 # dependencies used by the app
-pkg_dependencies="gettext postgresql postgresql-contrib libpq-dev git curl gcc make openssl libssl-dev pkg-config openssl"
+pkg_dependencies="postgresql postgresql-contrib"
 
 #=================================================
 # PERSONAL HELPERS
