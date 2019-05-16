@@ -62,7 +62,7 @@ if [ -z "$final_path" ]; then
 fi
 
 # Fix previous database name
-psql_db=$(ynh_app_setting_get --app=$app -key=psql_db)
+psql_db=$(ynh_app_setting_get --app=$app --key=psql_db)
 
 if [ -n "$psql_db" ]
 then
