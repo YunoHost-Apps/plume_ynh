@@ -40,9 +40,9 @@ There is **No LDAP** support for Plume yet but the app can be used by multiple u
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/plume%20%28Community%29.svg)](https://ci-apps.yunohost.org/ci/apps/plume/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/plume%20%28Community%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/plume/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/plume%20%28Community%29.svg)](https://ci-stretch.nohost.me/ci/apps/plume/)
+* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/plume%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/plume/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/plume%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/plume/)
+* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/plume%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/plume/)
 
 ## Limitations
 
@@ -52,7 +52,7 @@ There is **No LDAP** support for Plume yet but the app can be used by multiple u
 
  * Report a bug: https://github.com/YunoHost-Apps/plume_ynh/issues
  * App website: https://joinplu.me/
- * App Github: https://github.com/Plume-org/Plume
+ * Upstream app repository: https://github.com/Plume-org/Plume
  * YunoHost website: https://yunohost.org/
 
 ---
