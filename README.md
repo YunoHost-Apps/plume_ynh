@@ -60,7 +60,6 @@ There is **No LDAP** support for Plume yet but the app can be used by multiple u
 Developers info
 ----------------
 
-**Only if you want to use a testing branch for coding, instead of merging directly into master.**
 Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/plume_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
