@@ -7,7 +7,7 @@
 #=================================================
 
 source _common.sh
-source detect_arch
+source ynh_detect_arch__2
 source /usr/share/yunohost/helpers
 
 #=================================================
