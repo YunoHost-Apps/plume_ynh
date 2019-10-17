@@ -29,6 +29,8 @@ secret_key=$(ynh_app_setting_get --app=$app --key=secret_key)
 name=$(ynh_app_setting_get --app=$app --key=name)
 port=$(ynh_app_setting_get --app=$app --key=port)
 
+architecture=$(ynh_detect_arch)
+
 #=================================================
 # CHECK VERSION
 #=================================================
