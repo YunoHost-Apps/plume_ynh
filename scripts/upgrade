@@ -7,7 +7,7 @@
 #=================================================
 
 source _common.sh
-source detect_arch
+source ynh_detect_arch__2
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -28,6 +28,8 @@ admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 secret_key=$(ynh_app_setting_get --app=$app --key=secret_key)
 name=$(ynh_app_setting_get --app=$app --key=name)
 port=$(ynh_app_setting_get --app=$app --key=port)
+
+architecture=$(ynh_detect_arch)
 
 #=================================================
 # CHECK VERSION
