@@ -13,7 +13,7 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 
 **Warning:** The package can take **15 to 30 minutes** to complete depending on your system configuration. **Don't intrupt the installation process while installing.**
 
-## Important points to read before installing the app
+## Important points to read before installing
 1. **Plume** is still in **pre-release** stage and undergoing heavy development, so there can be **bugs**.
 1. **Plume** require a dedicated **root domain**, eg. plume.domain.tld
 1. **Plume** require a valid **certificate** installed on the domain. Yunohost can **install Letsencrypt certificate** on the domain from **admin web-interface** or through **command-line**.
@@ -60,7 +60,6 @@ There is **No LDAP** support for Plume yet but the app can be used by multiple u
 Developers info
 ----------------
 
-**Only if you want to use a testing branch for coding, instead of merging directly into master.**
 Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/plume_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
