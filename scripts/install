@@ -164,9 +164,6 @@ ynh_replace_string --match_string="__SECRET_KEY__" --replace_string="$secret_key
 # MAKE SETUP
 #=================================================
 
-# Fix missing Cargo.toml
-cp "../conf/Cargo.toml" "$final_path/$app/Cargo.toml"
-
 # Set right permissions 
 chown -R "$app":"$app" $final_path
 
