@@ -170,7 +170,7 @@ chown -R "$app":"$app" $final_path
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
-    sudo -u "$app" env PATH=$PATH diesel migration run
+    sudo -u "$app" env PATH=$PATH plm migration run
 popd 
 
 #=================================================
