@@ -24,9 +24,6 @@ is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
-secret_key=$(ynh_app_setting_get --app=$app --key=secret_key)
-name=$(ynh_app_setting_get --app=$app --key=name)
 port=$(ynh_app_setting_get --app=$app --key=port)
 
 architecture=$(ynh_detect_arch)
@@ -91,6 +88,7 @@ ynh_print_info --message="Backing up the app before upgrading (may take a while)
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
+	read -p "key"
 	# restore it if the upgrade fails
 	ynh_restore_upgradebackup
 	ynh_clean_check_starting
@@ -112,7 +110,7 @@ path_url=$(ynh_normalize_url_path --path_url=$path_url)
 #=================================================
 ynh_print_info --message="Stopping a systemd service..."
 
-ynh_systemd_action --service_name=$app --action=stop
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped plume"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -124,6 +122,13 @@ then
 
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source "$final_path/$app" $architecture
+
+	# Move binaries
+	mv $final_path/$app/bin/* $final_path/.cargo/bin/
+	chmod +x $final_path/.cargo/bin/*
+
+	# Remove empty bin directory
+	ynh_secure_remove --file="$final_path/$app/bin/"
 fi
 
 #=================================================
@@ -170,7 +175,7 @@ chown -R "$app":"$app" $final_path
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
-    sudo -u "$app" env PATH=$PATH diesel migration run
+    sudo -u "$app" env PATH=$PATH plm migration run
 popd 
 
 #=================================================
@@ -225,7 +230,7 @@ fi
 #=================================================
 ynh_print_info --message="Starting a systemd service..."
 
-ynh_systemd_action --service_name=$app --action=start
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started plume"
 
 #=================================================
 # RELOAD NGINX

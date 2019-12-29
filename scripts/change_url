@@ -58,7 +58,7 @@ fi
 #=================================================
 ynh_print_info --message="Stopping a systemd service..."
 
-ynh_systemd_action --service_name=$app --action="stop"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped plume"
 
 #=================================================
 # MODIFY URL IN NGINX CONF
@@ -114,7 +114,7 @@ ynh_store_file_checksum --file="$final_path/$app/.env"
 #=================================================
 ynh_print_info --message="Starting a systemd service..."
 
-ynh_systemd_action --service_name=$app --action=start
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started plume"
 
 #=================================================
 # RELOAD NGINX
