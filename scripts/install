@@ -164,16 +164,13 @@ ynh_replace_string --match_string="__SECRET_KEY__" --replace_string="$secret_key
 # MAKE SETUP
 #=================================================
 
-# Fix missing Cargo.toml
-cp "../conf/Cargo.toml" "$final_path/$app/Cargo.toml"
-
 # Set right permissions 
 chown -R "$app":"$app" $final_path
 
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
-    sudo -u "$app" env PATH=$PATH diesel migration run
+    sudo -u "$app" env PATH=$PATH plm migration run
 
     # Add new instance
     if [ $registration -eq 1 ]
@@ -233,7 +230,7 @@ yunohost service add $app --description "$app daemon for XXX" --log "/var/log/$a
 #=================================================
 ynh_print_info --message="Starting a systemd service..."
 
-ynh_systemd_action --service_name=$app --action="start"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started plume"
 
 #=================================================
 # SETUP SSOWAT
