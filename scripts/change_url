@@ -36,6 +36,23 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 #db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 
 #=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_print_info --message="Backing up the app before changing its url (may take a while)..."
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# Remove the new domain config file, the remove script won't do it as it doesn't know yet its location.
+	ynh_secure_remove --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
+
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
 # CHECK WHICH PARTS SHOULD BE CHANGED
 #=================================================
 
@@ -54,7 +71,7 @@ fi
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
-# STOP SERVICE
+# STOP SYSTEMD SERVICE
 #=================================================
 ynh_print_info --message="Stopping a systemd service..."
 
@@ -96,16 +113,17 @@ fi
 #=================================================
 ynh_print_info --message="Modifying a config file..."
 
-ynh_replace_string --match_string="$old_domain" --replace_string="$new_domain" --target_file="$final_path/$app/.env"
+config_file="$final_path/$app/.env"
+ynh_backup_if_checksum_is_different --file=$config_file
+ynh_replace_string --match_string="$old_domain" --replace_string="$new_domain" --target_file=$config_file
 
 #=================================================
 # STORE THE CONFIG FILE CHECKSUM
 #=================================================
 ynh_print_info --message="Soring the config file checksum..."
 
-ynh_backup_if_checksum_is_different --file="$final_path/$app/.env"
 # Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file="$final_path/$app/.env"
+ynh_store_file_checksum --file=$config_file
 
 #=================================================
 # GENERIC FINALISATION
