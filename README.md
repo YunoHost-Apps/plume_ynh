@@ -42,7 +42,6 @@ There is **No LDAP** support for Plume yet but the app can be used by multiple u
 
 * x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/plume%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/plume/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/plume%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/plume/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/plume%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/plume/)
 
 ## Limitations
 
