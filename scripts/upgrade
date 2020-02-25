@@ -31,6 +31,7 @@ architecture=$(ynh_detect_arch)
 #=================================================
 # CHECK VERSION
 #=================================================
+ynh_print_info --message="Checking version..."
 
 upgrade_type=$(ynh_check_app_version_changed)
 
@@ -88,7 +89,6 @@ ynh_print_info --message="Backing up the app before upgrading (may take a while)
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
-	read -p "key"
 	# restore it if the upgrade fails
 	ynh_restore_upgradebackup
 	ynh_clean_check_starting
@@ -121,7 +121,7 @@ then
 	ynh_print_info --message="Upgrading source files..."
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source "$final_path/$app" $architecture
+	ynh_setup_source --dest_dir="$final_path/$app" --source_id=$architecture
 
 	# Move binaries
 	mv $final_path/$app/bin/* $final_path/.cargo/bin/
@@ -183,9 +183,10 @@ popd
 #=================================================
 ynh_print_info --message="Storing the config file checksum..."
 
-ynh_backup_if_checksum_is_different --file="$final_path/.env"
+config_file="$final_path/$app/.env"
+ynh_backup_if_checksum_is_different --file=$config_file
 # Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file="$final_path/$app/.env"
+ynh_store_file_checksum --file=$config_file
 
 #=================================================
 # SETUP LOGROTATE
