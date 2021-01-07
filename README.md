@@ -1,7 +1,7 @@
-# Plume app for Yunohost
+# Plume for Yunohost
 
 [![Integration level](https://dash.yunohost.org/integration/plume.svg)](https://dash.yunohost.org/appci/app/plume) ![](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)  
-[![Install Plume with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=plume)
+[![Install Plume with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 
 > *This package allows you to install Plume quickly and simply on a YunoHost server.  
 If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
@@ -56,8 +56,7 @@ There is **No LDAP** support for Plume yet but the app can be used by multiple u
 
 ---
 
-Developer info
-----------------
+## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/plume_ynh/tree/testing).
 
