@@ -20,7 +20,6 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
-is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 port=$(ynh_app_setting_get --app=$app --key=port)
@@ -39,25 +38,11 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
 
-# Fix is_public as a boolean value
-if [ "$is_public" = "Yes" ]; then
-	ynh_app_setting_set --app=$app --key=is_public --value=1
-	is_public=1
-elif [ "$is_public" = "No" ]; then
-	ynh_app_setting_set --app=$app --key=is_public --value=0
-	is_public=0
-fi
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+	ynh_legacy_permissions_delete_all
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If final_path doesn't exist, create it
-if [ -z "$final_path" ]; then
-	final_path=/var/www/$app
-	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+	ynh_app_setting_delete --app=$app --key=is_public
 fi
 
 # Fix previous database name
@@ -65,10 +50,10 @@ psql_db=$(ynh_app_setting_get --app=$app --key=psql_db)
 
 if [ -n "$psql_db" ]
 then
-    db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
-    db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-    ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-    ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
+	db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
+	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+	ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
 	ynh_app_setting_delete --app=$app --key=psql_db
 	ynh_app_setting_delete --app=$app --key=psqlpwd
 fi
@@ -76,8 +61,8 @@ fi
 # Closing a port
 if yunohost firewall list | grep -q "\- $port$"
 then
-	echo "Close port $port" >&2
-	yunohost firewall disallow TCP $port 2>&1
+	ynh_script_progression --message="Closing port $port..."
+	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
 #=================================================
@@ -94,13 +79,6 @@ ynh_clean_setup () {
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-#=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -174,7 +152,7 @@ chown -R "$app":"$app" $final_path
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
-    sudo -u "$app" env PATH=$PATH plm migration run
+	sudo -u "$app" env PATH=$PATH plm migration run
 popd 
 
 #=================================================
@@ -226,18 +204,6 @@ yunohost service add $app --description "$app daemon for Plume" --log "/var/log/
 ynh_script_progression --message="Starting a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started plume"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..."
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-	# unprotected_uris allows SSO credentials to be passed anyway
-	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-fi
 
 #=================================================
 # RELOAD NGINX
