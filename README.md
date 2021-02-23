@@ -18,7 +18,6 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 1. **Plume** require a dedicated **root domain**, eg. plume.domain.tld
 1. **Plume** require a valid **certificate** installed on the domain. Yunohost can **install Letsencrypt certificate** on the domain from **admin web-interface** or through **command-line**.
 1. This package is **multi-instance** that means you can run **multiple Plume instances** on a **single server**.
-1. There is **No LDAP** support for Plume yet.
 
 ## Screenshots
 
