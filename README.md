@@ -36,7 +36,7 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 
 #### Multi-user support
 
-There is **No LDAP** support for Plume yet but the app can be used by multiple users
+LDAP is activated but HTTP auth is not supported
 
 #### Supported architectures
 
