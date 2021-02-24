@@ -45,7 +45,7 @@ architecture=$(ynh_detect_arch)
 # Check machine architecture (in particular, we don't support ARM and 32bit machines)
 if [ $architecture == "arm" ]
 then
-    ynh_die --message="Sorry, but this app can only be installed on a 64 bits machine :("
+	ynh_die --message="Sorry, but this app can only be installed on a 64 bits machine :("
 fi
 
 final_path=/var/www/$app
@@ -62,7 +62,6 @@ ynh_script_progression --message="Storing installation settings..."
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=path --value=$path_url
 ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=is_public --value=$is_public
 ynh_app_setting_set --app=$app --key=instance --value=$instance_name
 ynh_app_setting_set --app=$app --key=registration --value=$registration
 ynh_app_setting_set --app=$app --key=admin_email --value=$admin_email
@@ -78,13 +77,6 @@ ynh_script_progression --message="Finding an available port ..."
 # Find an available port
 port=$(ynh_find_port --port=8095)
 ynh_app_setting_set --app=$app --key=port --value=$port
-
-# Optional: Expose this port publicly
-# (N.B. : you only need to do this if the app actually needs to expose the port publicly.
-# If you do this and the app doesn't actually need you are CREATING SECURITY HOLES IN THE SERVER !)
-
-# Open the port
-# ynh_exec_warn_less yunohost firewall allow --no-upnp TCP $port
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -178,21 +170,21 @@ chown -R "$app":"$app" $final_path
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
-    sudo -u "$app" env PATH=$PATH plm migration run
+	sudo -u "$app" env PATH=$PATH plm migration run
 
-    # Add new instance
-    if [ $registration -eq 1 ]
-    then
-         sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY'
-    else
-         sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY'
-    fi
+	# Add new instance
+	if [ $registration -eq 1 ]
+	then
+		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY'
+	else
+		sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY'
+	fi
 
-    # Add admin user
-    sudo -u "$app" env PATH=$PATH plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$password"
+	# Add admin user
+	sudo -u "$app" env PATH=$PATH plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$password"
 
-    # Initialise search index
-    sudo -u "$app" env PATH=$PATH plm search init -p $final_path/$app
+	# Initialise search index
+	sudo -u "$app" env PATH=$PATH plm search init -p $final_path/$app
 popd
 
 #=================================================
@@ -246,13 +238,14 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring SSOwat..."
+ynh_script_progression --message="Configuring permissions..."
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+	# Everyone can access the app.
+	# The "main" permission is automatically created before the install script.
+	ynh_permission_update --permission="main" --add="visitors"
 fi
 
 #=================================================
