@@ -72,7 +72,7 @@ ynh_app_setting_set --app=$app --key=secret_key --value=$secret_key
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Finding an available port ..."
+ynh_script_progression --message="Finding an available port..."
 
 # Find an available port
 port=$(ynh_find_port --port=8095)
@@ -81,9 +81,17 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies ..."
+ynh_script_progression --message="Installing dependencies..."
 
 ynh_install_app_dependencies $pkg_dependencies
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..."
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE
@@ -101,7 +109,7 @@ ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files ..."
+ynh_script_progression --message="Setting up source files..."
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
@@ -120,21 +128,17 @@ chmod +x $final_path/.cargo/bin/*
 # Remove empty bin directory
 ynh_secure_remove --file="$final_path/$app/bin/"
 
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R root:$app "$final_path"
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring nginx web server..."
+ynh_script_progression --message="Configuring NGINX web server..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..."
-
-# Create a system user
-ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # SPECIFIC SETUP
@@ -144,20 +148,6 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 
 mkdir -p "/var/log/$app"
 chown -R "$app":"$app" "/var/log/$app"
-
-#=================================================
-# MODIFY A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Modifying a config file..."
-
-# setup application config
-config_file="$final_path/$app/.env"
-cp "../conf/.env" $config_file
-ynh_replace_string --match_string="__DB_NAME__" --replace_string="$db_name" --target_file=$config_file
-ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file=$config_file
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file=$config_file
-ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file=$config_file
-ynh_replace_string --match_string="__SECRET_KEY__" --replace_string="$secret_key" --target_file=$config_file
 
 #=================================================
 # MAKE SETUP
@@ -196,23 +186,17 @@ ynh_script_progression --message="Configuring a systemd service..."
 ynh_add_systemd_config
 
 #=================================================
-# STORE THE CONFIG FILE CHECKSUM
+# ADD A CONFIGURATION
 #=================================================
-ynh_script_progression --message="Storing the config file checksum..."
+ynh_script_progression --message="Adding a config file..."
 
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file=$config_file
+#ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+
+chmod 400 "$final_path/$app/.env"
+chown $app:$app "$final_path/$app/.env"
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-ynh_script_progression --message="Securing files and directories..."
-
-# Set permissions to app files
-chown -R $app: $final_path
-
 #=================================================
 # SETUP LOGROTATE
 #=================================================
@@ -226,7 +210,7 @@ ynh_use_logrotate
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Plume" --log "/var/log/$app/$app.log"
+yunohost service add $app --description="$app daemon for Plume" --log="/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -251,7 +235,7 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 

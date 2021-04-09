@@ -1,7 +1,7 @@
 ;; Test complet
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
-		admin="john" (USER)
+		admin="john"	(USER)
 		is_public=1	(PUBLIC|public=1|private=0)
 		password="pass"
 		name="my blog"
@@ -23,10 +23,10 @@
 		backup_restore=1
 		multi_instance=1
 		port_already_use=0
-		change_url=0
+		change_url=1
 ;;; Options
-Email=anmol@datamol.org;yalh@yahoo.com
-Notification=yes
+Email=
+Notification=none
 ;;; Upgrade options
 	; commit=279716dff5fc79cc84ae2d7799c8094017ac028e
 		name=0.3.0-alpha-2~ynh1
