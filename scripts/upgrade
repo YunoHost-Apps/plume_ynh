@@ -66,7 +66,7 @@ then
 fi
 
 #=================================================
-# BACKUP BEFORE CHANGE URL THEN ACTIVE TRAP
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
 ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
@@ -160,22 +160,22 @@ pushd $final_path/$app
 popd 
 
 #=================================================
-# STORE THE CONFIG FILE CHECKSUM
-#=================================================
-ynh_script_progression --message="Storing the config file checksum..."
-
-config_file="$final_path/$app/.env"
-ynh_backup_if_checksum_is_different --file=$config_file
-# Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file=$config_file
-
-#=================================================
 # SETUP SYSTEMD
 #=================================================
 ynh_script_progression --message="Upgrading systemd configuration..."
 
 # Create a dedicated systemd config
 ynh_add_systemd_config
+
+#=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message="Updating a config file..."
+
+ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+
+chmod 400 "$final_path/$app/.env"
+chown $app:$app "$final_path/$app/.env"
 
 #=================================================
 # GENERIC FINALIZATION
