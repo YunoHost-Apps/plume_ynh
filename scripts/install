@@ -190,7 +190,7 @@ ynh_add_systemd_config
 #=================================================
 ynh_script_progression --message="Adding a config file..."
 
-#ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
 
 chmod 400 "$final_path/$app/.env"
 chown $app:$app "$final_path/$app/.env"
