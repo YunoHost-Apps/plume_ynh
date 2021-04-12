@@ -146,6 +146,16 @@ mkdir -p "/var/log/$app"
 chown -R "$app":"$app" "/var/log/$app"
 
 #=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message="Updating a config file..."
+
+ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+
+chmod 400 "$final_path/$app/.env"
+chown $app:$app "$final_path/$app/.env"
+
+#=================================================
 # MAKE SETUP
 #=================================================
 ynh_script_progression --message="Making setup..."
@@ -155,16 +165,6 @@ export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin
 pushd $final_path/$app
 	sudo -u "$app" env PATH=$PATH plm migration run
 popd 
-
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Updating a config file..."
-
-ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
-
-chmod 400 "$final_path/$app/.env"
-chown $app:$app "$final_path/$app/.env"
 
 #=================================================
 # SETUP SYSTEMD

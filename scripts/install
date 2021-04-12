@@ -150,6 +150,16 @@ mkdir -p "/var/log/$app"
 chown -R "$app":"$app" "/var/log/$app"
 
 #=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a config file..."
+
+ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+
+chmod 400 "$final_path/$app/.env"
+chown $app:$app "$final_path/$app/.env"
+
+#=================================================
 # MAKE SETUP
 #=================================================
 ynh_script_progression --message="Making setup..."
@@ -176,16 +186,6 @@ pushd $final_path/$app
 	# Initialise search index
 	sudo -u "$app" env PATH=$PATH plm search init -p $final_path/$app
 popd
-
-#=================================================
-# ADD A CONFIGURATION
-#=================================================
-ynh_script_progression --message="Adding a config file..."
-
-ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
-
-chmod 400 "$final_path/$app/.env"
-chown $app:$app "$final_path/$app/.env"
 
 #=================================================
 # SETUP SYSTEMD
