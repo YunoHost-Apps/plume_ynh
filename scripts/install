@@ -126,7 +126,7 @@ mv $final_path/$app/bin/* $final_path/.cargo/bin/
 chmod +x $final_path/.cargo/bin/*
 
 # Remove empty bin directory
-ynh_secure_remove --file="$final_path/$app/bin/"
+ynh_secure_remove --file="$final_path/$app/bin"
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"

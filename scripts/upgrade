@@ -22,6 +22,8 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 port=$(ynh_app_setting_get --app=$app --key=port)
 
 architecture=$(ynh_detect_arch)
@@ -113,7 +115,7 @@ then
 	chmod +x $final_path/.cargo/bin/*
 
 	# Remove empty bin directory
-	ynh_secure_remove --file="$final_path/$app/bin/"
+	ynh_secure_remove --file="$final_path/$app/bin"
 fi
 
 chmod 750 "$final_path"
