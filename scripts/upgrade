@@ -25,6 +25,7 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
 db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 port=$(ynh_app_setting_get --app=$app --key=port)
+secret_key=$(ynh_app_setting_get --app=$app --key=secret_key)
 
 architecture=$(ynh_detect_arch)
 
