@@ -22,7 +22,10 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 port=$(ynh_app_setting_get --app=$app --key=port)
+secret_key=$(ynh_app_setting_get --app=$app --key=secret_key)
 
 architecture=$(ynh_detect_arch)
 
@@ -73,7 +76,7 @@ ynh_script_progression --message="Backing up the app before upgrading (may take 
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
-	# restore it if the upgrade fails
+	# Restore it if the upgrade fails
 	ynh_restore_upgradebackup
 	ynh_clean_check_starting
 }
@@ -88,6 +91,14 @@ ynh_abort_if_errors
 ynh_script_progression --message="Stopping a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped plume"
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..."
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -105,15 +116,19 @@ then
 	chmod +x $final_path/.cargo/bin/*
 
 	# Remove empty bin directory
-	ynh_secure_remove --file="$final_path/$app/bin/"
+	ynh_secure_remove --file="$final_path/$app/bin"
 fi
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:$app "$final_path"
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -122,14 +137,6 @@ ynh_add_nginx_config
 ynh_script_progression --message="Upgrading dependencies..."
 
 ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..."
-
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -142,28 +149,25 @@ mkdir -p "/var/log/$app"
 chown -R "$app":"$app" "/var/log/$app"
 
 #=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message="Updating a config file..."
+
+ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+
+chmod 400 "$final_path/$app/.env"
+chown $app:$app "$final_path/$app/.env"
+
+#=================================================
 # MAKE SETUP
 #=================================================
 ynh_script_progression --message="Making setup..."
-
-# Set right permissions 
-chown -R "$app":"$app" $final_path
 
 export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
 
 pushd $final_path/$app
 	sudo -u "$app" env PATH=$PATH plm migration run
 popd 
-
-#=================================================
-# STORE THE CONFIG FILE CHECKSUM
-#=================================================
-ynh_script_progression --message="Storing the config file checksum..."
-
-config_file="$final_path/$app/.env"
-ynh_backup_if_checksum_is_different --file=$config_file
-# Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file=$config_file
 
 #=================================================
 # SETUP SYSTEMD
@@ -175,14 +179,6 @@ ynh_add_systemd_config
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-ynh_script_progression --message="Securing files and directories..."
-
-# Set permissions on app files
-chown -R "$app":"$app" "$final_path"
-
 #=================================================
 # SETUP LOGROTATE
 #=================================================
@@ -196,7 +192,7 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Plume" --log "/var/log/$app/$app.log"
+yunohost service add $app --description="$app daemon for Plume" --log="/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -208,7 +204,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
