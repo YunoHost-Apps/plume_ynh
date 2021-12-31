@@ -8,6 +8,13 @@
     },
     "version": "0.6.0~ynh2",
     "url": "https://joinplu.me/",
+    "upstream": {
+        "license": "AGPL-3.0-only",
+        "website": "https://joinplu.me/",
+        "demo": "https://joinplu.me/#instances",
+        "admindoc": "https://docs.joinplu.me/",
+        "code": "https://github.com/Plume-org/Plume"
+    },
     "license": "AGPL-3.0-only",
     "maintainer": {
         "name": "yalh76"
@@ -53,7 +60,7 @@
                 "type": "boolean",
                 "ask": {
                     "en": "Is registrations open to everyone?",
-                    "fr": "Les inscriptions sont t'elles ouvertes à tout le monde?"
+                    "fr": "Les inscriptions sont t'elles ouvertes à tout le monde ?"
                 },
                 "default": false
 			}
