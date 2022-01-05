@@ -60,7 +60,7 @@
                 "type": "boolean",
                 "ask": {
                     "en": "Is registrations open to everyone?",
-                    "fr": "Les inscriptions sont t'elles ouvertes à tout le monde ?"
+                    "fr": "Les inscriptions sont-elles ouvertes à tout le monde ?"
                 },
                 "default": false
 			}
