@@ -7,7 +7,6 @@
 #=================================================
 
 source _common.sh
-source ynh_detect_arch__2
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -33,6 +32,7 @@ instance_name=$YNH_APP_ARG_NAME
 registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
 secret_key=$(ynh_string_random --length=32 | base64)
+architecture=$YNH_ARCH
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -41,9 +41,8 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_script_progression --message="Validating installation parameters..."
 
-architecture=$(ynh_detect_arch)
 # Check machine architecture (in particular, we don't support ARM and 32bit machines)
-if [ $architecture == "arm" ]
+if [ $architecture == "armhf" ]
 then
 	ynh_die --message="Sorry, but this app can only be installed on a 64 bits machine :("
 fi
@@ -83,7 +82,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-ynh_install_app_dependencies $pkg_dependencies
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER
@@ -98,13 +97,11 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 #=================================================
 ynh_script_progression --message="Creating a PostgreSQL database..."
 
-ynh_psql_test_if_first_run
 db_name=$(ynh_sanitize_dbid --db_name=$app)
 db_user=$db_name
-db_pwd=$(ynh_string_random --length=30)
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
-ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+ynh_psql_test_if_first_run
+ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
