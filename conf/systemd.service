@@ -11,7 +11,6 @@ ExecStart=/bin/sh -c '__FINALPATH__/.cargo/bin/plume >> /var/log/__APP__/__APP__
 TimeoutSec=30
 Restart=always
 
-
 # Sandboxing options to harden security
 # Depending on specificities of your service/app, you may need to tweak these 
 # .. but this should be a good baseline
