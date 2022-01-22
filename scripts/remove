@@ -44,30 +44,20 @@ ynh_script_progression --message="Stopping and removing the systemd service..."
 ynh_remove_systemd_config
 
 #=================================================
+# REMOVE LOGROTATE CONFIGURATION
+#=================================================
+ynh_script_progression --message="Removing logrotate configuration..."
+
+# Remove the app-specific logrotate config
+ynh_remove_logrotate
+
+#=================================================
 # REMOVE THE POSTGRESQL DATABASE
 #=================================================
 ynh_script_progression --message="Removing the PostgreSQL database..."
 
 # Remove a database if it exists, along with the associated user
 ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
-
-#=================================================
-# REMOVE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Removing dependencies..."
-
-# Remove metapackage and its dependencies
-ynh_remove_app_dependencies
-
-export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
-
-pushd $final_path/$app
-	sudo -u "$app" env PATH=$PATH cargo uninstall diesel_cli
-popd
-
-if [ -d "/usr/local/lib/rustlib" ]; then
-	sudo /usr/local/lib/rustlib/uninstall.sh
-fi
 
 #=================================================
 # REMOVE APP MAIN DIR
@@ -86,12 +76,22 @@ ynh_script_progression --message="Removing NGINX web server configuration..."
 ynh_remove_nginx_config
 
 #=================================================
-# REMOVE LOGROTATE CONFIGURATION
+# REMOVE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Removing logrotate configuration..."
+ynh_script_progression --message="Removing dependencies..."
 
-# Remove the app-specific logrotate config
-ynh_remove_logrotate
+# Remove metapackage and its dependencies
+ynh_remove_app_dependencies
+
+export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
+
+pushd $final_path/$app
+	sudo -u "$app" env PATH=$PATH cargo uninstall diesel_cli
+popd
+
+if [ -d "/usr/local/lib/rustlib" ]; then
+	sudo /usr/local/lib/rustlib/uninstall.sh
+fi
 
 #=================================================
 # SPECIFIC REMOVE

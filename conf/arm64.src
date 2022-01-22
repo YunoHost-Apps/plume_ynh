@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/YunoHost-Apps/plume_ynh/releases/download/0.6.0/plume-arm64-postgres.tar.gz
-SOURCE_SUM=c821052f0d7c6cbb2d4eeffd143fb36b3add30b57c4bfc442d6604bd43e2f1b2
+SOURCE_URL=https://github.com/YunoHost-Apps/plume_ynh/releases/download/0.7.1/plume-arm64-postgres.tar.gz
+SOURCE_SUM=872d074c492e43d391f0f932e921adc0916ed58bd6388aaa591c966ce962f8be
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=false
