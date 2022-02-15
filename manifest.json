@@ -6,7 +6,7 @@
         "en": "Federated blogging application",
         "fr": "Application de blogging fédérée"
     },
-    "version": "0.7.1~ynh1",
+    "version": "0.7.1~ynh2",
     "url": "https://joinplu.me/",
     "upstream": {
         "license": "AGPL-3.0-only",
