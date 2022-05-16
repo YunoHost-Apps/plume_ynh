@@ -39,6 +39,7 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 #### Multi-user support
 
 LDAP is activated but HTTP auth is not supported
+
 ## Documentation and resources
 
 * Official app website: https://joinplu.me/
