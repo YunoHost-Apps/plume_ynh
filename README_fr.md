@@ -11,7 +11,8 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database. 
+Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database.
+
 
 **Version incluse :** 0.7.2~ynh1
 
