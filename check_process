@@ -1,8 +1,8 @@
 ;; Test complet
 	; Manifest
 		domain="domain.tld"
-		admin="john"
 		is_public=1
+		admin="john"
 		password="pass"
 		name="my blog"
 		registration=0

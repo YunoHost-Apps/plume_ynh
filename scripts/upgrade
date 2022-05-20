@@ -42,9 +42,9 @@ ynh_script_progression --message="Backing up the app before upgrading (may take 
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
+	ynh_clean_check_starting
 	# Restore it if the upgrade fails
 	ynh_restore_upgradebackup
-	ynh_clean_check_starting
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -107,7 +107,7 @@ then
 	ynh_script_progression --message="Upgrading source files..."
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path/$app" --source_id=$architecture
+	ynh_setup_source --dest_dir="$final_path/$app" --source_id=$architecture --keep="$app/.env"
 
 	# Move binaries
 	mv $final_path/$app/bin/* $final_path/.cargo/bin/

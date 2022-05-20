@@ -25,8 +25,8 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
-admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
+admin=$YNH_APP_ARG_ADMIN
 password=$YNH_APP_ARG_PASSWORD
 instance_name=$YNH_APP_ARG_NAME
 registration=$YNH_APP_ARG_REGISTRATION

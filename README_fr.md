@@ -11,9 +11,10 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database. 
+Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database.
 
-**Version incluse :** 0.7.1~ynh2
+
+**Version incluse :** 0.7.2~ynh1
 
 **Démo :** https://joinplu.me/#instances
 
@@ -34,6 +35,7 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 #### Multi-user support
 
 LDAP is activated but HTTP auth is not supported
+
 ## Documentations et ressources
 
 * Site officiel de l'app : https://joinplu.me/
