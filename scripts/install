@@ -30,7 +30,7 @@ ynh_app_setting_set --app=$app --key=secret_key --value=$secret_key
 ynh_script_progression --message="Setting up source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$install_dir/$app" --source_id=$architecture
+ynh_setup_source --dest_dir="$install_dir/$app"
 
 # Create the media directory, where uploads will be stored
 mkdir -p $install_dir/media
