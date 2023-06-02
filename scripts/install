@@ -92,9 +92,9 @@ pushd $install_dir/$app
 	# Add new instance
 	if [ $registration -eq 1 ]
 	then
-		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY'
+		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$name" -l 'CC-BY'
 	else
-		sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY'
+		sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$name" -l 'CC-BY'
 	fi
 
 	# Add admin user

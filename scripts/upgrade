@@ -33,7 +33,7 @@ then
 	ynh_script_progression --message="Upgrading source files..."
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir/$app" --source_id=$architecture --keep="$app/.env"
+	ynh_setup_source --dest_dir="$install_dir/$app" --keep="$app/.env"
 
 	# Move binaries
 	mv $install_dir/$app/bin/* $install_dir/.cargo/bin/
