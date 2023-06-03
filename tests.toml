@@ -1,0 +1,16 @@
+test_format = 1.0
+
+[default]
+
+    # -------------------------------
+    # Default args to use for install
+    # -------------------------------
+
+    	args.name="my blog"
+		args.registration=0
+
+    # -------------------------------
+    # Commits to test upgrade from
+    # -------------------------------
+
+    test_upgrade_from.655ae344f49a20eb4c335034244b547c9e56e6a0.name = "Upgrade from 0.7.1~ynh1"

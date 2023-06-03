@@ -10,124 +10,44 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-ynh_clean_setup () {
-	ynh_clean_check_starting
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-#=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-domain=$YNH_APP_ARG_DOMAIN
-path_url="/"
-is_public=$YNH_APP_ARG_IS_PUBLIC
-admin=$YNH_APP_ARG_ADMIN
-password=$YNH_APP_ARG_PASSWORD
-instance_name=$YNH_APP_ARG_NAME
-registration=$YNH_APP_ARG_REGISTRATION
 admin_email=$(ynh_user_get_info $admin 'mail')
 secret_key=$(ynh_string_random --length=32 | base64)
-architecture=$YNH_ARCH
-
-app=$YNH_APP_INSTANCE_NAME
-
-#=================================================
-# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
-#=================================================
-ynh_script_progression --message="Validating installation parameters..."
-
-# Check machine architecture (in particular, we don't support ARM and 32bit machines)
-if [ $architecture == "armhf" ]
-then
-	ynh_die --message="Sorry, but this app can only be installed on a 64 bits machine :("
-fi
-
-final_path=/var/www/$app
-test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
-
-# Register (book) web path
-ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
 ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain --value=$domain
-ynh_app_setting_set --app=$app --key=path --value=$path_url
-ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=instance --value="$instance_name"
-ynh_app_setting_set --app=$app --key=registration --value=$registration
 ynh_app_setting_set --app=$app --key=admin_email --value=$admin_email
 ynh_app_setting_set --app=$app --key=secret_key --value=$secret_key
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-# FIND AND OPEN A PORT
-#=================================================
-ynh_script_progression --message="Finding an available port..."
-
-# Find an available port
-port=$(ynh_find_port --port=8095)
-ynh_app_setting_set --app=$app --key=port --value=$port
-
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Installing dependencies..."
-
-ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..."
-
-# Create a system user
-ynh_system_user_create --username=$app --home_dir=$final_path
-
-#=================================================
-# CREATE A POSTGRESQL DATABASE
-#=================================================
-ynh_script_progression --message="Creating a PostgreSQL database..."
-
-db_name=$(ynh_sanitize_dbid --db_name=$app)
-db_user=$db_name
-ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_psql_test_if_first_run
-ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..."
 
-ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$final_path/$app" --source_id=$architecture
+ynh_setup_source --dest_dir="$install_dir/$app"
 
 # Create the media directory, where uploads will be stored
-mkdir -p $final_path/media
+mkdir -p $install_dir/media
 
 # Create the cargo directory
-mkdir -p $final_path/.cargo/bin
+mkdir -p $install_dir/.cargo/bin
 
 # Move binaries
-mv $final_path/$app/bin/* $final_path/.cargo/bin/
-chmod +x $final_path/.cargo/bin/*
+mv $install_dir/$app/bin/* $install_dir/.cargo/bin/
+chmod +x $install_dir/.cargo/bin/*
 
 # Remove empty bin directory
-ynh_secure_remove --file="$final_path/$app/bin"
+ynh_secure_remove --file="$install_dir/$app/bin"
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:$app "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:$app "$install_dir"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -151,10 +71,10 @@ chown -R "$app":"$app" "/var/log/$app"
 #=================================================
 ynh_script_progression --message="Adding a config file..."
 
-ynh_add_config --template="../conf/.env" --destination="$final_path/$app/.env"
+ynh_add_config --template="../conf/.env" --destination="$install_dir/$app/.env"
 
-chmod 400 "$final_path/$app/.env"
-chown $app:$app "$final_path/$app/.env"
+chmod 400 "$install_dir/$app/.env"
+chown $app:$app "$install_dir/$app/.env"
 
 #=================================================
 # MAKE SETUP
@@ -162,26 +82,26 @@ chown $app:$app "$final_path/$app/.env"
 ynh_script_progression --message="Making setup..."
 
 # Set right permissions 
-chown -R "$app":"$app" $final_path
+chown -R "$app":"$app" $install_dir
 
-export PATH="$PATH:$final_path/.cargo/bin:$final_path/.local/bin:/usr/local/sbin" 
+export PATH="$PATH:$install_dir/.cargo/bin:$install_dir/.local/bin:/usr/local/sbin" 
 
-pushd $final_path/$app
+pushd $install_dir/$app
 	sudo -u "$app" env PATH=$PATH plm migration run
 
 	# Add new instance
 	if [ $registration -eq 1 ]
 	then
-		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY'
+		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$name" -l 'CC-BY'
 	else
-		sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$instance_name" -l 'CC-BY'
+		sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$name" -l 'CC-BY'
 	fi
 
 	# Add admin user
 	sudo -u "$app" env PATH=$PATH plm users new --admin -n "$admin" -N "$admin"  --email "$admin_email" --password "$password"
 
 	# Initialise search index
-	sudo -u "$app" env PATH=$PATH plm search init -p $final_path/$app
+	sudo -u "$app" env PATH=$PATH plm search init -p $install_dir/$app
 popd
 
 #=================================================
@@ -192,20 +112,8 @@ ynh_script_progression --message="Configuring a systemd service..."
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Configuring log rotation..."
-
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate
-
-#=================================================
-# INTEGRATE SERVICE IN YUNOHOST
-#=================================================
-ynh_script_progression --message="Integrating service in YunoHost..."
 
 yunohost service add $app --description="$app daemon for Plume" --log="/var/log/$app/$app.log"
 
@@ -215,26 +123,6 @@ yunohost service add $app --description="$app daemon for Plume" --log="/var/log/
 ynh_script_progression --message="Starting a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started plume"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Configuring permissions..."
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-	# Everyone can access the app.
-	# The "main" permission is automatically created before the install script.
-	ynh_permission_update --permission="main" --add="visitors"
-fi
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
-
-ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
