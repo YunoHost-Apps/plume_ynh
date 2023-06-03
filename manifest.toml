@@ -5,7 +5,7 @@ name = "Plume"
 description.en = "Federated blogging application"
 description.fr = "Application de blogging fédérée"
 
-version = "0.7.2~ynh1"
+version = "0.7.2~ynh2"
 
 maintainers = ["yalh76"]
 
