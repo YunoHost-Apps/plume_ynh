@@ -19,7 +19,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 Federated blogging engine, based on ActivityPub. It uses the Rocket framework, and Diesel to interact with the database.
 
 
-**Version incluse :** 0.7.2~ynh1
+**Version incluse :** 0.7.2~ynh2
 
 **Démo :** https://joinplu.me/#instances
 
