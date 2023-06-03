@@ -1,0 +1,78 @@
+packaging_format = 2
+
+id = "plume"
+name = "Plume"
+description.en = "Federated blogging application"
+description.fr = "Application de blogging fédérée"
+
+version = "0.7.2~ynh1"
+
+maintainers = ["yalh76"]
+
+[upstream]
+license = "AGPL-3.0-only"
+website = "https://joinplu.me/"
+demo = "https://joinplu.me/#instances"
+admindoc = "https://docs.joinplu.me/"
+code = "https://github.com/Plume-org/Plume"
+
+[integration]
+yunohost = ">= 11.1.19"
+architectures = ["amd64", "arm64"]
+multi_instance = true
+ldap = true
+sso = false
+disk = "50M"
+ram.build = "50M"
+ram.runtime = "50M"
+
+[install]
+    [install.domain]
+    type = "domain"
+    full_domain = true
+
+    [install.init_main_permission]
+    type = "group"
+    default = "visitors"
+
+    [install.admin]
+    type = "user"
+
+    [install.password]
+    type = "password"
+
+    [install.name]
+    ask.en = "Choose a name for your Plume instance"
+    ask.fr = "Choisissez un nom pour votre instance Plume"
+    type = "string"
+    example = "My blog"
+    default = "My blog"
+
+    [install.registration]
+    ask.en = "Is registrations open to everyone?"
+    ask.fr = "Les inscriptions sont-elles ouvertes à tout le monde ?"
+    type = "boolean"
+    default = false
+
+[resources]
+        [resources.sources.main]
+        in_subdir = false
+        arm64.url = "https://github.com/YunoHost-Apps/plume_ynh/releases/download/0.7.2/plume-arm64-postgres.tar.gz"
+        arm64.sha256 = "921b3b209b2f3cb352c676ecb93730aa4732e239a53f59f1ec5f128d5b28ec42"
+        amd64.url = "https://github.com/Plume-org/Plume/releases/download/0.7.2/plume-postgres.tar.gz"
+        amd64.sha256 = "1a8c5a931fef25920503c9ae577b1c180ba7709e88f3d47b077ae80e2d9ea9ef"
+
+    [resources.ports]
+
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.permissions]
+    main.url = "/"
+
+    [resources.apt]
+    packages = "postgresql postgresql-contrib"
+
+    [resources.database]
+    type = "postgresql"

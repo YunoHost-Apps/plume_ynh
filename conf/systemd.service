@@ -1,13 +1,13 @@
 [Unit]
-Description=plume
+Description=Plume
 After=network.target
 
 [Service]
 Type=simple
 User=__APP__
 Group=__APP__
-WorkingDirectory=__FINALPATH__/__APP__
-ExecStart=/bin/sh -c '__FINALPATH__/.cargo/bin/plume >> /var/log/__APP__/__APP__.log 2>&1'
+WorkingDirectory=__INSTALL_DIR__/__APP__
+ExecStart=/bin/sh -c '__INSTALL_DIR__/.cargo/bin/plume >> /var/log/__APP__/__APP__.log 2>&1'
 TimeoutSec=30
 Restart=always
 
