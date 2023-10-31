@@ -32,7 +32,7 @@ Federated blogging engine, based on ActivityPub. It uses the Rocket framework, a
 * Site officiel de l’app : <https://joinplu.me/>
 * Documentation officielle de l’admin : <https://docs.joinplu.me/>
 * Dépôt de code officiel de l’app : <https://github.com/Plume-org/Plume>
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_plume>
+* YunoHost Store: <https://apps.yunohost.org/app/plume>
 * Signaler un bug : <https://github.com/YunoHost-Apps/plume_ynh/issues>
 
 ## Informations pour les développeurs
