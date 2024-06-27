@@ -81,10 +81,10 @@ chown $app:$app "$install_dir/$app/.env"
 #=================================================
 ynh_script_progression --message="Making setup..."
 
-# Set right permissions 
+# Set right permissions
 chown -R "$app":"$app" $install_dir
 
-export PATH="$PATH:$install_dir/.cargo/bin:$install_dir/.local/bin:/usr/local/sbin" 
+export PATH="$PATH:$install_dir/.cargo/bin:$install_dir/.local/bin:/usr/local/sbin"
 
 pushd $install_dir/$app
 	sudo -u "$app" env PATH=$PATH plm migration run
@@ -92,7 +92,7 @@ pushd $install_dir/$app
 	# Add new instance
 	if [ $registration -eq 1 ]
 	then
-		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$name" -l 'CC-BY'
+		sudo -u "$app" env PATH=$PATH plm instance new  --domain "$domain" --name "$instance_name" -l 'CC-BY'
 	else
 		sudo -u "$app" env PATH=$PATH plm instance new --private --domain "$domain" --name "$name" -l 'CC-BY'
 	fi
