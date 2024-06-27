@@ -71,7 +71,11 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "postgresql postgresql-contrib"
+    packages = [
+        "postgresql",
+        "postgresql-contrib",
+        "libssl1.1",
+    ]
 
     [resources.database]
     type = "postgresql"
