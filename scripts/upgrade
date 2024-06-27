@@ -25,6 +25,15 @@ ynh_script_progression --message="Stopping a systemd service..."
 ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped plume"
 
 #=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+
+if [ -z "$instance_name" ]; then
+    ynh_app_setting_set --app="$app" --key="instance_name" --value="$name"
+fi
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
@@ -79,11 +88,11 @@ chown $app:$app "$install_dir/$app/.env"
 #=================================================
 ynh_script_progression --message="Making setup..."
 
-export PATH="$PATH:$install_dir/.cargo/bin:$install_dir/.local/bin:/usr/local/sbin" 
+export PATH="$PATH:$install_dir/.cargo/bin:$install_dir/.local/bin:/usr/local/sbin"
 
 pushd $install_dir/$app
 	sudo -u "$app" env PATH=$PATH plm migration run
-popd 
+popd
 
 #=================================================
 # SETUP SYSTEMD
