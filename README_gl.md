@@ -5,7 +5,7 @@ NON debe editarse manualmente.
 
 # Plume para YunoHost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/plume.svg)](https://dash.yunohost.org/appci/app/plume) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/plume.svg)](https://ci-apps.yunohost.org/ci/apps/plume/) ![Estado de funcionamento](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Estado de mantemento](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
 
 [![Instalar Plume con YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 

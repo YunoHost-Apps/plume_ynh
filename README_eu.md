@@ -5,7 +5,7 @@ EZ editatu eskuz.
 
 # Plume YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/plume.svg)](https://dash.yunohost.org/appci/app/plume) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
+[![Integrazio maila](https://dash.yunohost.org/integration/plume.svg)](https://ci-apps.yunohost.org/ci/apps/plume/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
 
 [![Instalatu Plume YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 
