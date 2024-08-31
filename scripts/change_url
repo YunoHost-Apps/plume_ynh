@@ -1,56 +1,46 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# STANDARD MODIFICATIONS
-#=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Stopping a systemd service..."
+ynh_script_progression "Stopping $app's systemd service..."
 
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped plume"
+ynh_systemctl --service=$app --action="stop" --log_path="systemd" --wait_until="Stopped plume"
 
 #=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
-ynh_script_progression --message="Updating NGINX web server configuration..."
+ynh_script_progression "Updating NGINX web server configuration..."
 
-ynh_change_url_nginx_config
+ynh_config_change_url_nginx
 
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Modifying a config file..."
+ynh_script_progression "Updating configuration..."
 
 config_file="$install_dir/$app/.env"
-ynh_backup_if_checksum_is_different --file=$config_file
-ynh_replace_string --match_string="$old_domain" --replace_string="$new_domain" --target_file=$config_file
+ynh_backup_if_checksum_is_different $config_file
+ynh_replace --match="$old_domain" --replace="$new_domain" --file=$config_file
 
 # Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file=$config_file
+ynh_store_file_checksum $config_file
 
-#=================================================
-# GENERIC FINALISATION
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..."
+ynh_script_progression "Starting $app's systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started plume"
+ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="Started plume"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Change of URL completed for $app"
+ynh_script_progression "Change of URL completed for $app"
