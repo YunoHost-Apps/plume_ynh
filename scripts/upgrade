@@ -31,6 +31,7 @@ ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 if [ -z "$instance_name" ]; then
     ynh_app_setting_set --app="$app" --key="instance_name" --value="$name"
+    instance_name=$name
 fi
 
 #=================================================
