@@ -5,7 +5,9 @@
 
 # YunoHost 上的 Plume
 
-[![集成程度](https://dash.yunohost.org/integration/plume.svg)](https://ci-apps.yunohost.org/ci/apps/plume/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
+[![集成程度](https://apps.yunohost.org/badge/integration/plume)](https://ci-apps.yunohost.org/ci/apps/plume/)
+![工作状态](https://apps.yunohost.org/badge/state/plume)
+![维护状态](https://apps.yunohost.org/badge/maintained/plume)
 
 [![使用 YunoHost 安装 Plume](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 

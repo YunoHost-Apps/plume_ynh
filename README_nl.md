@@ -5,7 +5,9 @@ Hij mag NIET handmatig aangepast worden.
 
 # Plume voor Yunohost
 
-[![Integratieniveau](https://dash.yunohost.org/integration/plume.svg)](https://ci-apps.yunohost.org/ci/apps/plume/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
+[![Integratieniveau](https://apps.yunohost.org/badge/integration/plume)](https://ci-apps.yunohost.org/ci/apps/plume/)
+![Mate van functioneren](https://apps.yunohost.org/badge/state/plume)
+![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/plume)
 
 [![Plume met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 

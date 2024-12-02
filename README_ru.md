@@ -5,7 +5,9 @@
 
 # Plume для YunoHost
 
-[![Уровень интеграции](https://dash.yunohost.org/integration/plume.svg)](https://ci-apps.yunohost.org/ci/apps/plume/) ![Состояние работы](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Состояние сопровождения](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
+[![Уровень интеграции](https://apps.yunohost.org/badge/integration/plume)](https://ci-apps.yunohost.org/ci/apps/plume/)
+![Состояние работы](https://apps.yunohost.org/badge/state/plume)
+![Состояние сопровождения](https://apps.yunohost.org/badge/maintained/plume)
 
 [![Установите Plume с YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 

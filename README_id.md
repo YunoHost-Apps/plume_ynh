@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # Plume untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/plume.svg)](https://ci-apps.yunohost.org/ci/apps/plume/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/plume.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/plume.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/plume)](https://ci-apps.yunohost.org/ci/apps/plume/)
+![Status kerja](https://apps.yunohost.org/badge/state/plume)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/plume)
 
 [![Pasang Plume dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=plume)
 
