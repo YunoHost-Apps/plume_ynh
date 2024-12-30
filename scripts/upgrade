@@ -29,8 +29,9 @@ ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --li
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
-if [ -z "$instance_name" ]; then
-    ynh_app_setting_set --app="$app" --key="instance_name" --value="$name"
+if [[ -z "${instance_name:-}" ]]; then
+    ynh_app_setting_set --app="$app" --key="instance_name" --value="My blog"
+    instance_name="My blog"
 fi
 
 #=================================================

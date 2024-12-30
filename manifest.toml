@@ -74,7 +74,6 @@ ram.runtime = "50M"
     packages = [
         "postgresql",
         "postgresql-contrib",
-        "libssl1.1",
     ]
 
     [resources.database]
